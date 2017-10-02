@@ -8,5 +8,5 @@ build/
 mvnw*
 
 src/main/resources/config
-db
+db/
 derby.log
