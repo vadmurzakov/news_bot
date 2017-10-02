@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:derby:db/news-bot/store;create=true
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.DerbyDialect
+      ddl-auto: validate
+
+liquibase:
+  changeLog: classpath:liquibase/changelog-master.xml
