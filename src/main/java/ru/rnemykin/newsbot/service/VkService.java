@@ -7,7 +7,6 @@ import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.groups.GroupFull;
 import com.vk.api.sdk.objects.wall.WallpostFull;
-import com.vk.api.sdk.objects.wall.responses.GetResponse;
 import com.vk.api.sdk.queries.wall.WallGetFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,9 @@ import ru.rnemykin.newsbot.config.vkontakte.VkConfig;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
 
 import javax.annotation.PostConstruct;
-import java.text.MessageFormat;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 @Service
 @Slf4j
@@ -46,26 +46,31 @@ public class VkService {
 			List<GroupFull> groupFulls = vk.groups().getById(actor).groupId(id.toString()).execute();
 			return Iterables.getFirst(groupFulls, null);
 		} catch (ApiException | ClientException e) {
-			log.error(MessageFormat.format("Error get group {0}, {1}", PublicEnum.fromId(id), e.getMessage()));
+			log.error("Error get group {}, {}", PublicEnum.fromId(id), e.getMessage());
 			return null;
 		}
 	}
 
-	public List<WallpostFull> getWallpost(Long groupId) {
-		return getWallpost(calcGroupId(groupId), COUNT_WALLPOST, OFFSET_WALLPOST);
+	public List<WallpostFull> getWallPosts(long groupId) {
+		return getWallPosts(groupId, COUNT_WALLPOST, OFFSET_WALLPOST);
 	}
 
-	public List<WallpostFull> getWallpost(GroupFull group) {
-		return getWallpost(calcGroupId(group.getId()), COUNT_WALLPOST, OFFSET_WALLPOST);
+	public List<WallpostFull> getWallPosts(GroupFull group) {
+		return getWallPosts(Long.valueOf(group.getId()), COUNT_WALLPOST, OFFSET_WALLPOST);
 	}
 
-	public List<WallpostFull> getWallpost(Integer groupId, Integer count, Integer offset) {
+	private List<WallpostFull> getWallPosts(long groupId, Integer count, Integer offset) {
 		try {
-			GetResponse response = vk.wall().get(actor).ownerId(calcGroupId(groupId)).filter(WallGetFilter.OWNER).count(count).offset(offset).execute();
-			return response.getItems();
+			return vk.wall().get(actor)
+                    .ownerId(calcGroupId(groupId))
+                    .filter(WallGetFilter.OWNER)
+					.count(count)
+                    .offset(offset)
+                    .execute()
+                    .getItems();
 		} catch (ApiException | ClientException e) {
-			log.error(MessageFormat.format("Error get wall posts for group {0}, {1}", PublicEnum.fromId(groupId.longValue()), e.getMessage()));
-			return null;
+			log.error("Error get wall posts for group {}, {}", PublicEnum.fromId(groupId), e.getMessage());
+			return emptyList();
 		}
 	}
 

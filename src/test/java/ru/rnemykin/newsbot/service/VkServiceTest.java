@@ -26,15 +26,15 @@ public class VkServiceTest {
 	}
 
 	@Test
-	public void getWallpostByGroupId() {
-		List<WallpostFull> wallpost = service.getWallpost(PublicEnum.BEELIVE.id());
-		assertNotNull(wallpost);
+	public void getWallPostsByGroupId() {
+		List<WallpostFull> wallPosts = service.getWallPosts(PublicEnum.BEELIVE.id());
+		assertNotNull(wallPosts);
 	}
 
 	@Test
-	public void getWallpostByGroup() {
+	public void getWallPostsByGroup() {
 		GroupFull group = service.getGroup(PublicEnum.BEELIVE.id());
-		List<WallpostFull> wallpost = service.getWallpost(group);
-		assertNotNull(wallpost);
+		List<WallpostFull> wallPosts = service.getWallPosts(group);
+		assertNotNull(wallPosts);
 	}
 }

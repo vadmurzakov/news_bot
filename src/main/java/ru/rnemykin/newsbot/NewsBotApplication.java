@@ -14,8 +14,8 @@ import java.util.Set;
 import static java.util.Collections.singleton;
 import static java.util.Collections.unmodifiableMap;
 
-@SpringBootApplication
 @EnableScheduling
+@SpringBootApplication
 public class NewsBotApplication {
 
 	public static void main(String[] args) {
