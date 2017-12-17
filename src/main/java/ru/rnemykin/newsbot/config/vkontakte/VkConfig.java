@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @Configuration
-public class VkConfiguration {
+public class VkConfig {
 
 	private final VkProperties properties;
 
 	@Autowired
-	public VkConfiguration(VkProperties properties) {
+	public VkConfig(VkProperties properties) {
 		this.properties = properties;
 	}
 

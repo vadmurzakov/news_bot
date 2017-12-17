@@ -12,7 +12,7 @@ import com.vk.api.sdk.queries.wall.WallGetFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.rnemykin.newsbot.config.vkontakte.VkConfiguration;
+import ru.rnemykin.newsbot.config.vkontakte.VkConfig;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
 
 import javax.annotation.PostConstruct;
@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 public class VkService {
 
-	@Autowired private VkConfiguration configuration;
+	@Autowired private VkConfig configuration;
 
 	private final static Integer COUNT_WALLPOST = 5;
 	private final static Integer OFFSET_WALLPOST = 0;
