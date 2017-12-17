@@ -14,3 +14,7 @@ spring:
 
 liquibase:
   changeLog: classpath:liquibase/changelog-master.xml
+
+job:
+  loadNews:
+    schedule: '*/30 * * * * *'

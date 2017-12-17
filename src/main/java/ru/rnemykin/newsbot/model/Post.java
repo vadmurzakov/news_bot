@@ -9,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -31,7 +32,9 @@ public class Post extends Model<Long> {
     private Long postId;
     private Long ownerId;
     private String type;
-    private String text;
+
+    @Lob
+    private byte[] text;
     private long likesCount;
     private long viewsCount;
     private long repostsCount;

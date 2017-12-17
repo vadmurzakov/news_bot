@@ -31,7 +31,7 @@
             <column name="type" type="VARCHAR(100)" remarks="Тип записи. see com.vk.api.sdk.objects.wall.PostType">
                 <constraints nullable="false"/>
             </column>
-            <column name="text" type="VARCHAR(4000)" remarks="Текст записи">
+            <column name="text" type="BLOB" remarks="Текст записи">
                 <constraints nullable="false"/>
             </column>
             <column name="likes_count" type="BIGINT" remarks="Количество лайков">
