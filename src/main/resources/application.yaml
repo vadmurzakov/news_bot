@@ -1,3 +1,8 @@
+vk:
+  appId: 0
+  secretKey: key
+  serviceKeyAccess: keyAccess
+
 spring:
   jpa:
     properties:
