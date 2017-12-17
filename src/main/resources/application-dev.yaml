@@ -4,8 +4,3 @@ spring:
     password:
     url: jdbc:hsqldb:file:db/news-bot
     driver-class-name: org.hsqldb.jdbc.JDBCDriver
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.DerbyTenSevenDialect
-        ddl-auto: create-drop
