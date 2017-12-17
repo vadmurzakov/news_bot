@@ -16,12 +16,8 @@
             <column name="create_date" type="DATETIME" remarks="Дата создания записи в БД">
                 <constraints nullable="false"/>
             </column>
-            <column name="cancel_date" type="DATETIME" remarks="Дата отмены публикации записи">
-                <constraints nullable="false"/>
-            </column>
-            <column name="publish_date" type="DATETIME" remarks="Дата публикации записи">
-                <constraints nullable="false"/>
-            </column>
+            <column name="cancel_date" type="DATETIME" remarks="Дата отмены публикации записи"/>
+            <column name="publish_date" type="DATETIME" remarks="Дата публикации записи"/>
             <column name="sent_attempts_count" type="INT" remarks="Количество попыток отправки">
                 <constraints nullable="false"/>
             </column>
