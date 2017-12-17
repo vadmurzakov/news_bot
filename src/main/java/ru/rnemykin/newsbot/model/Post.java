@@ -23,6 +23,7 @@ public class Post extends Model<Long> {
     @Enumerated(EnumType.STRING)
     private PostStatusEnum status;
     private LocalDateTime createDate;
+    private LocalDateTime sentDate;
     private LocalDateTime cancelDate;
     private LocalDateTime publishDate;
     private Integer sentAttemptsCount;
