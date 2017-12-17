@@ -5,5 +5,57 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
+    <changeSet id="17.12.2017-1-1" author="rnemykin">
+        <createTable tableName="post">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="post_pk"/>
+            </column>
+            <column name="status" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.PostStatusEnum">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_date" type="DATETIME" remarks="Дата создания записи в БД">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cancel_date" type="DATETIME" remarks="Дата отмены публикации записи">
+                <constraints nullable="false"/>
+            </column>
+            <column name="publish_date" type="DATETIME" remarks="Дата публикации записи">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sent_attempts_count" type="INT" remarks="Количество попыток отправки">
+                <constraints nullable="false"/>
+            </column>
+            <column name="post_id" type="BIGINT" remarks="ID vk записи">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner_id" type="BIGINT" remarks="ID владельца записи">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(100)" remarks="Тип записи. see com.vk.api.sdk.objects.wall.PostType">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="VARCHAR(4000)" remarks="Текст записи">
+                <constraints nullable="false"/>
+            </column>
+            <column name="likes_count" type="BIGINT" remarks="Количество лайков">
+                <constraints nullable="false"/>
+            </column>
+            <column name="views_count" type="BIGINT" remarks="Количество просмотров">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reposts_count" type="BIGINT" remarks="Количество репостов">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comments_count" type="BIGINT" remarks="Количество комментариев">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_pinned" type="BOOLEAN" remarks="Закреплена?">
+                <constraints nullable="false"/>
+            </column>
+            <column name="post_date" type="DATETIME" remarks="Дата публикации в VK">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 
 </databaseChangeLog>

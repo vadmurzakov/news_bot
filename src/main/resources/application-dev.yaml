@@ -2,5 +2,5 @@ spring:
   datasource:
     username: sa
     password:
-    url: jdbc:hsqldb:file:db/news-bot
+    url: jdbc:hsqldb:file:./db/city_news
     driver-class-name: org.hsqldb.jdbc.JDBCDriver
