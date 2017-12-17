@@ -22,7 +22,7 @@ public class VkConfig {
 		this.properties = properties;
 	}
 
-	@Bean
+	@Bean(name = "vkClient")
 	@SneakyThrows
 	public VkApiClient getClient() {
 		TransportClient transportClient = new HttpTransportClient();
