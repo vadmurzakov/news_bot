@@ -3,6 +3,9 @@ vk:
   secretKey: key
   serviceKeyAccess: keyAccess
 
+telegram:
+  token: <token>
+
 spring:
   jpa:
     properties:
