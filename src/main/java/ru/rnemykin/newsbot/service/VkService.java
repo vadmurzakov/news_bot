@@ -22,11 +22,10 @@ import static java.util.Collections.emptyList;
 @Service
 @Slf4j
 public class VkService {
+	@Autowired
+    private VkConfig configuration;
 
-	@Autowired private VkConfig configuration;
-
-	private final static Integer COUNT_WALLPOST = 5;
-	private final static Integer OFFSET_WALLPOST = 0;
+	private final static Integer DEFAULT_COUNT_WALLPOST = 5;
 
 	private ServiceActor actor;
 	private VkApiClient vk;
@@ -51,21 +50,16 @@ public class VkService {
 		}
 	}
 
-	public List<WallpostFull> getWallPosts(long groupId) {
-		return getWallPosts(groupId, COUNT_WALLPOST, OFFSET_WALLPOST);
-	}
-
 	public List<WallpostFull> getWallPosts(GroupFull group) {
-		return getWallPosts(Long.valueOf(group.getId()), COUNT_WALLPOST, OFFSET_WALLPOST);
+		return getWallPosts(Long.valueOf(group.getId()), DEFAULT_COUNT_WALLPOST);
 	}
 
-	private List<WallpostFull> getWallPosts(long groupId, Integer count, Integer offset) {
+	public List<WallpostFull> getWallPosts(long groupId, int postsCount) {
 		try {
 			return vk.wall().get(actor)
                     .ownerId(calcGroupId(groupId))
                     .filter(WallGetFilter.OWNER)
-					.count(count)
-                    .offset(offset)
+					.count(postsCount)
                     .execute()
                     .getItems();
 		} catch (ApiException | ClientException e) {

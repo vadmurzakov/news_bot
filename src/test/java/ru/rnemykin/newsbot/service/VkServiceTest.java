@@ -27,7 +27,7 @@ public class VkServiceTest {
 
 	@Test
 	public void getWallPostsByGroupId() {
-		List<WallpostFull> wallPosts = service.getWallPosts(PublicEnum.BEELIVE.id());
+		List<WallpostFull> wallPosts = service.getWallPosts(PublicEnum.BEELIVE.id(), 5);
 		assertNotNull(wallPosts);
 	}
 

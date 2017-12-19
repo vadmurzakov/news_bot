@@ -44,7 +44,7 @@ public class LoadNewsJob {
     @Scheduled(cron = "${job.loadNews.schedule}")
     public void loadNews() {
         cityNews.get(CityEnum.BELGOROD).forEach(cityPublic -> {
-            List<WallpostFull> vkWallPosts = vkService.getWallPosts(cityPublic.id()); //todo pass posts_fetch_size
+            List<WallpostFull> vkWallPosts = vkService.getWallPosts(cityPublic.id(), POSTS_FETCH_SIZE);
             log.info("retrieve {} vkWallPosts", vkWallPosts.size());
             if(!isEmpty(vkWallPosts)) {
                 PageRequest pageRequest = new PageRequest(0, POSTS_FETCH_SIZE);
