@@ -57,7 +57,7 @@ public class VkService {
 	public List<WallpostFull> getWallPosts(long groupId, int postsCount) {
 		try {
 			return vk.wall().get(actor)
-                    .ownerId(calcGroupId(groupId))
+                    .ownerId(-((int) groupId))
                     .filter(WallGetFilter.OWNER)
 					.count(postsCount)
                     .execute()
@@ -68,10 +68,4 @@ public class VkService {
 		}
 	}
 
-	/**
-	 * @return group id must be negative
-	 */
-	private Integer calcGroupId(Object groupId) {
-		return new Integer(String.valueOf(groupId)) * -1;
-	}
 }
