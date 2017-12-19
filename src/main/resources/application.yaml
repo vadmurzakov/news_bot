@@ -9,6 +9,7 @@ telegram:
 spring:
   jpa:
     properties:
+      generate-ddl: false
       hibernate:
         ddl-auto: validate
 

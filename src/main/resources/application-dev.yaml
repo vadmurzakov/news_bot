@@ -2,5 +2,10 @@ spring:
   datasource:
     username: sa
     password:
-    url: jdbc:hsqldb:file:./db/city_news
+    url: jdbc:hsqldb:file:./db/city_news;AUTO_SERVER=TRUE
     driver-class-name: org.hsqldb.jdbc.JDBCDriver
+  jpa:
+    properties:
+      generate-ddl: false
+      hibernate:
+        ddl-auto: validate
