@@ -10,7 +10,7 @@ import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
-import ru.rnemykin.newsbot.repository.PostRepository;
+import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.VkService;
 
 import java.time.LocalDateTime;
@@ -31,13 +31,13 @@ public class LoadNewsJob {
 
     private final VkService vkService;
     private final Map<CityEnum, Set<PublicEnum>> cityNews;
-    private final PostRepository postRepository;
+    private final PostService postService;
 
     @Autowired
-    public LoadNewsJob(VkService vkService, Map<CityEnum, Set<PublicEnum>> cityNews, PostRepository postRepository) {
+    public LoadNewsJob(VkService vkService, Map<CityEnum, Set<PublicEnum>> cityNews, PostService postService) {
         this.vkService = vkService;
         this.cityNews = cityNews;
-        this.postRepository = postRepository;
+        this.postService = postService;
     }
 
 
@@ -48,12 +48,12 @@ public class LoadNewsJob {
             log.info("retrieve {} vkWallPosts", vkWallPosts.size());
             if(!isEmpty(vkWallPosts)) {
                 PageRequest pageRequest = new PageRequest(0, POSTS_FETCH_SIZE);
-                List<Post> publicPosts = postRepository.findAllByOwnerId(cityPublic.id(), pageRequest);
+                List<Post> publicPosts = postService.findAllByOwnerId(cityPublic.id(), pageRequest);
                 List<Post> posts = vkWallPosts.stream()
                         .filter(vkPost -> publicPosts.stream().noneMatch(p -> p.getPostId().equals(valueOf(vkPost.getId()))))
                         .map(this::mapToPost).collect(toList());
 
-                postRepository.save(posts);
+                postService.save(posts);
             }
         });
     }
