@@ -54,7 +54,7 @@ public class TelegramService {
 		setOffset(updates);
 	}
 
-	@Scheduled(fixedDelay = 5000)
+	@Scheduled(fixedDelay = 1000)
 	private void getUpdates() {
 		exec(getUpdates(offset));
 	}
