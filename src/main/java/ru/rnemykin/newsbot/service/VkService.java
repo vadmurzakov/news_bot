@@ -25,8 +25,6 @@ public class VkService {
 	@Autowired
     private VkConfig configuration;
 
-	private final static Integer DEFAULT_COUNT_WALLPOST = 5;
-
 	private ServiceActor actor;
 	private VkApiClient vk;
 
@@ -40,30 +38,26 @@ public class VkService {
 		vk = configuration.getClient();
 	}
 
-	public GroupFull getGroup(Long id) {
+	public GroupFull getGroup(Integer id) {
 		try {
 			List<GroupFull> groupFulls = vk.groups().getById(actor).groupId(id.toString()).execute();
 			return Iterables.getFirst(groupFulls, null);
 		} catch (ApiException | ClientException e) {
-			log.error("Error get group {}, {}", PublicEnum.fromId(id), e.getMessage());
+			log.error("Error get group {}, {}", PublicEnum.from(id), e.getMessage());
 			return null;
 		}
 	}
 
-	public List<WallpostFull> getWallPosts(GroupFull group) {
-		return getWallPosts(Long.valueOf(group.getId()), DEFAULT_COUNT_WALLPOST);
-	}
-
-	public List<WallpostFull> getWallPosts(long groupId, int postsCount) {
+	public List<WallpostFull> getWallPosts(PublicEnum group, int postsCount) {
 		try {
 			return vk.wall().get(actor)
-                    .ownerId(-((int) groupId))
+                    .ownerId(-group.id())
                     .filter(WallGetFilter.OWNER)
 					.count(postsCount)
                     .execute()
                     .getItems();
 		} catch (ApiException | ClientException e) {
-			log.error("Error get wall posts for group {}, {}", PublicEnum.fromId(groupId), e.getMessage());
+			log.error("Error get wall posts for group {}, {}", group, e.getMessage());
 			return emptyList();
 		}
 	}

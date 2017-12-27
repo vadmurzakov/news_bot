@@ -12,6 +12,7 @@ import ru.rnemykin.newsbot.model.enums.PublicEnum;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -26,15 +27,9 @@ public class VkServiceTest {
 	}
 
 	@Test
-	public void getWallPostsByGroupId() {
-		List<WallpostFull> wallPosts = service.getWallPosts(PublicEnum.BEELIVE.id(), 5);
-		assertNotNull(wallPosts);
-	}
-
-	@Test
 	public void getWallPostsByGroup() {
-		GroupFull group = service.getGroup(PublicEnum.BEELIVE.id());
-		List<WallpostFull> wallPosts = service.getWallPosts(group);
+		List<WallpostFull> wallPosts = service.getWallPosts(PublicEnum.BEELIVE, 5);
 		assertNotNull(wallPosts);
+		assertTrue(!wallPosts.isEmpty());
 	}
 }

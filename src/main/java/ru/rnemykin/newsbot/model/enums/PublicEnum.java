@@ -1,12 +1,12 @@
 package ru.rnemykin.newsbot.model.enums;
 
 public enum PublicEnum {
-    BEELIVE(36378934L, "https://vk.com/belgorod");
+    BEELIVE(36378934, "https://vk.com/belgorod");
 
-    private Long id;
+    private Integer id;
     private String url;
 
-    PublicEnum(Long id, String url) {
+    PublicEnum(Integer id, String url) {
         this.id = id;
         this.url = url;
     }
@@ -14,11 +14,11 @@ public enum PublicEnum {
     public String url() {
         return url;
     }
-    public Long id() {
+    public Integer id() {
         return id;
     }
 
-    public static PublicEnum fromId(Long id) {
+    public static PublicEnum from(Integer id) {
         for (PublicEnum publicEnum : PublicEnum.values()) {
             if (publicEnum.id.equals(id)) {
                 return publicEnum;
