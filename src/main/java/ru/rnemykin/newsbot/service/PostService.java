@@ -20,7 +20,11 @@ public class PostService {
 	}
 
 	public void save(List<Post> posts) {
-		postRepository.save(posts);
+		posts.forEach(this::save);
+	}
+
+	public void save(Post post) {
+		postRepository.save(post);
 	}
 
 	public List<Post> getAllForModeration() {
