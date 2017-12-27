@@ -60,7 +60,7 @@ public class LoadNewsJob {
 
     private Post mapToPost(WallpostFull p) {
         Post post = new Post();
-        post.setPostId(-1 * valueOf(p.getId()));
+        post.setPostId(valueOf(p.getId()));
         post.setOwnerId(-1 * valueOf(p.getOwnerId()));
         post.setType(p.getPostType().getValue());
         post.setPostDate(ofEpochMilli(p.getDate() * 1000L).atZone(systemDefault()).toLocalDateTime());
