@@ -22,6 +22,7 @@ import ru.rnemykin.newsbot.config.telegram.TelegramConfig;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.AdminEnum;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
+import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.Charset;
@@ -146,7 +147,13 @@ public class TelegramService {
 	}
 
 	private void changeStatusForPost(Post post, ModerationStatusEnum status) {
-		//todo[vmurzakov]: stub
+		if(status == ACCEPT) {
+		    post.setStatus(PostStatusEnum.MODERATED);
+        } else if(status == REJECT) {
+		    post.setStatus(PostStatusEnum.CANCELED);
+        }
+
+        postService.save(post);
 	}
 
     public boolean sendMessageToChannel(Post post) {
