@@ -22,13 +22,17 @@ import ru.rnemykin.newsbot.config.telegram.TelegramConfig;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.AdminEnum;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
+import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
 import javax.annotation.PostConstruct;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.*;
+import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.ACCEPT;
+import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.DEFER;
+import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 
 @Service
 @Slf4j
@@ -43,7 +47,7 @@ public class TelegramService {
 	private TelegramBot client;
 
 	private static class Keyboard {
-		public final static InlineKeyboardMarkup DEFAULT = new InlineKeyboardMarkup(
+		final static InlineKeyboardMarkup DEFAULT = new InlineKeyboardMarkup(
 				new InlineKeyboardButton[]{
 						new InlineKeyboardButton(ACCEPT.value()).callbackData(ACCEPT.name()),
 						new InlineKeyboardButton(REJECT.value()).callbackData(REJECT.name()),
@@ -106,7 +110,7 @@ public class TelegramService {
 	 *
 	 * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
 	 */
-	public void processPressKeyboardInline(CallbackQuery callbackQuery) {
+	private void processPressKeyboardInline(CallbackQuery callbackQuery) {
 		Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
 			Long chatId = adminEnum.id();
 			Integer messageId = callbackQuery.message().messageId();
@@ -145,5 +149,24 @@ public class TelegramService {
 	private void changeStatusForPost(Post post, ModerationStatusEnum status) {
 		//todo[vmurzakov]: stub
 	}
+
+	public void sendMessageToChannel(Post post) {
+        String chatId = telegramConfig.getProperties().getCityChatId().get(post.getCity());
+        SendMessage request = new SendMessage(chatId, new String(post.getText(), Charset.forName("UTF-8")))
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(true);
+
+        SendResponse execute = client.execute(request);
+        if(execute.isOk()) {
+            post.setStatus(PostStatusEnum.PUBLISHED);
+        } else {
+            post.setSentAttemptsCount(post.getSentAttemptsCount() + 1);
+            if(post.getSentAttemptsCount() > 3) {
+                post.setStatus(PostStatusEnum.ERROR);
+            }
+        }
+
+        postService.save(post);
+    }
 
 }

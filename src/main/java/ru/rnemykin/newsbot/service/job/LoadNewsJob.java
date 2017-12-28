@@ -43,19 +43,21 @@ public class LoadNewsJob {
 
     @Scheduled(cron = "${job.loadNews.schedule}")
     public void loadNews() {
-        cityNews.get(CityEnum.BELGOROD).forEach(cityPublic -> {
+        cityNews.forEach((key, value) -> value.forEach(cityPublic -> {
             List<WallpostFull> vkWallPosts = vkService.getWallPosts(cityPublic, POSTS_FETCH_SIZE);
             log.info("retrieve {} vkWallPosts", vkWallPosts.size());
-            if(!isEmpty(vkWallPosts)) {
+            if (!isEmpty(vkWallPosts)) {
                 PageRequest pageRequest = new PageRequest(0, POSTS_FETCH_SIZE);
                 List<Post> publicPosts = postService.findAllByOwnerId(cityPublic.id(), pageRequest);
                 List<Post> posts = vkWallPosts.stream()
                         .filter(vkPost -> publicPosts.stream().noneMatch(p -> p.getPostId().equals(valueOf(vkPost.getId()))))
-                        .map(this::mapToPost).collect(toList());
+                        .map(this::mapToPost)
+                        .peek(p -> p.setCity(key))
+                        .collect(toList());
 
                 postService.save(posts);
             }
-        });
+        }));
     }
 
     private Post mapToPost(WallpostFull p) {

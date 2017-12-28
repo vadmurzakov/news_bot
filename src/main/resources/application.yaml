@@ -5,6 +5,9 @@ vk:
 
 telegram:
   token: <token>
+  cityChatId:
+    BELGOROD: "<@bgdChatId>"
+
 
 spring:
   jpa:

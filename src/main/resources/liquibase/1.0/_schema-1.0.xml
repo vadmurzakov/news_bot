@@ -10,6 +10,9 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="post_pk"/>
             </column>
+            <column name="city" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.CityEnum">
+                <constraints nullable="false"/>
+            </column>
             <column name="status" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.PostStatusEnum">
                 <constraints nullable="false"/>
             </column>
