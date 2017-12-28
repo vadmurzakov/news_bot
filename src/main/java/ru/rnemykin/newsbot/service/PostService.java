@@ -15,6 +15,10 @@ public class PostService {
 	@Autowired
 	private PostRepository postRepository;
 
+	public List<Post> getAll() {
+		return (List<Post>) postRepository.findAll();
+	}
+
 	public List<Post> findAllByOwnerId(long ownerId, Pageable pageable) {
 		return postRepository.findAllByOwnerId(ownerId, pageable);
 	}
@@ -29,6 +33,10 @@ public class PostService {
 
 	public List<Post> getAllForModeration() {
 		return postRepository.findAllByStatus(PostStatusEnum.NEW);
+	}
+
+	public Post findByText(String text) {
+		return postRepository.findByText(text.getBytes());
 	}
 
 }

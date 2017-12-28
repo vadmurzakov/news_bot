@@ -12,4 +12,5 @@ import java.util.List;
 public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
     List<Post> findAllByOwnerId(long ownerId, Pageable pageable);
     List<Post> findAllByStatus(PostStatusEnum status);
+    Post findByText(byte[] text);
 }

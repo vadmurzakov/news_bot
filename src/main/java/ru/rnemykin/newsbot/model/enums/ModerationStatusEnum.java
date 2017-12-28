@@ -14,4 +14,9 @@ public enum ModerationStatusEnum {
 	public String value() {
 		return value;
 	}
+
+	public static ModerationStatusEnum from(String sourct) {
+		//todo[vmurzakov]: stub
+		return null;
+	}
 }

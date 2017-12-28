@@ -25,6 +25,12 @@ public class PostServiceTest {
 
 	@Test
 	public void getAll() {
+		List<Post> posts = postService.getAll();
+		assertNotNull(posts);
+	}
+
+	@Test
+	public void getAllModeration() {
 		List<Post> posts = postService.getAllForModeration();
 		assertNotNull(posts);
 	}

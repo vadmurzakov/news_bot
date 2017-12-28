@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.rnemykin.newsbot.config.telegram.TelegramConfig;
+import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.AdminEnum;
+import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -34,6 +36,8 @@ public class TelegramService {
 
 	@Autowired
 	private TelegramConfig telegramConfig;
+	@Autowired
+	private PostService postService;
 
 	private int offset = 0;
 	private TelegramBot client;
@@ -110,6 +114,8 @@ public class TelegramService {
 					.parseMode(ParseMode.Markdown)
 					.disableWebPagePreview(true);
 			BaseResponse response = client.execute(editMessageText);
+			Post post = postService.findByText(callbackQuery.message().text());
+			changeStatusForPost(post, ModerationStatusEnum.from(callbackQuery.data()));
 			if (response.isOk()) {
 				log.info("{} moderated post with status {}", adminEnum.name(), callbackQuery.data());
 			} else {
@@ -134,6 +140,10 @@ public class TelegramService {
 				log.error("Error send message: " + sendResponse.toString());
 			}
 		});
+	}
+
+	private void changeStatusForPost(Post post, ModerationStatusEnum status) {
+		//todo[vmurzakov]: stub
 	}
 
 }
