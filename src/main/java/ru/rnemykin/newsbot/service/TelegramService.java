@@ -22,7 +22,6 @@ import ru.rnemykin.newsbot.config.telegram.TelegramConfig;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.AdminEnum;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
-import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.Charset;
@@ -150,23 +149,17 @@ public class TelegramService {
 		//todo[vmurzakov]: stub
 	}
 
-	public void sendMessageToChannel(Post post) {
+    public boolean sendMessageToChannel(Post post) {
         String chatId = telegramConfig.getProperties().getCityChatId().get(post.getCity());
         SendMessage request = new SendMessage(chatId, new String(post.getText(), Charset.forName("UTF-8")))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true);
 
         SendResponse execute = client.execute(request);
-        if(execute.isOk()) {
-            post.setStatus(PostStatusEnum.PUBLISHED);
-        } else {
-            post.setSentAttemptsCount(post.getSentAttemptsCount() + 1);
-            if(post.getSentAttemptsCount() > 3) {
-                post.setStatus(PostStatusEnum.ERROR);
-            }
+        if(!execute.isOk()) {
+            log.error("error while send message to chat id={}, postId={}", chatId, post.getId());
         }
-
-        postService.save(post);
+        return execute.isOk();
     }
 
 }

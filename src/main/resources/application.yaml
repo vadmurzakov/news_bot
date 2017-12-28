@@ -22,3 +22,5 @@ liquibase:
 job:
   loadNews:
     schedule: '*/30 * * * * *'
+  publishNews:
+    schedule: '*/30 * * * * *'

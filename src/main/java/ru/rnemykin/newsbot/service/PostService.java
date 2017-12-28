@@ -1,6 +1,7 @@
 package ru.rnemykin.newsbot.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.rnemykin.newsbot.model.Post;
@@ -37,6 +38,10 @@ public class PostService {
 
 	public Post findByText(String text) {
 		return postRepository.findByText(text.getBytes());
+	}
+
+	public List<Post> findAllByStatus(PostStatusEnum status, int recordsCount) {
+		return postRepository.findAllByStatus(status, new PageRequest(0, recordsCount));
 	}
 
 }
