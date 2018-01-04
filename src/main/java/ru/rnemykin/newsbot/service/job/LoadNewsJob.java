@@ -52,7 +52,10 @@ public class LoadNewsJob {
                 List<Post> posts = vkWallPosts.stream()
                         .filter(vkPost -> publicPosts.stream().noneMatch(p -> p.getPostId().equals(valueOf(vkPost.getId()))))
                         .map(this::mapToPost)
-                        .peek(p -> p.setCity(key))
+                        .peek(p -> {
+                            p.setCity(key);
+                            p.setPostPublic(cityPublic);
+                        })
                         .collect(toList());
 
                 postService.save(posts);

@@ -3,8 +3,11 @@ package ru.rnemykin.newsbot.model;
 import lombok.Data;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
+import ru.rnemykin.newsbot.model.enums.PublicEnum;
+import ru.rnemykin.newsbot.repository.converter.PublicEnumDbConverter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -25,6 +28,10 @@ public class Post extends Model<Long> {
 
     @Enumerated(EnumType.STRING)
     private CityEnum city;
+
+    @Column(name = "publicId")
+    @Convert(converter = PublicEnumDbConverter.class)
+    private PublicEnum postPublic;
 
     @Enumerated(EnumType.STRING)
     private PostStatusEnum status;
