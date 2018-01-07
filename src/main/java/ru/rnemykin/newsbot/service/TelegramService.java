@@ -25,7 +25,6 @@ import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
 import javax.annotation.PostConstruct;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,32 +36,33 @@ import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 @Service
 @Slf4j
 public class TelegramService {
+    private static class Keyboard {//todo separate class all logic for keyboard
+        final static InlineKeyboardMarkup DEFAULT = new InlineKeyboardMarkup(
+                new InlineKeyboardButton[]{
+                        new InlineKeyboardButton(ACCEPT.value()).callbackData(ACCEPT.name()),
+                        new InlineKeyboardButton(REJECT.value()).callbackData(REJECT.name()),
+                        new InlineKeyboardButton(DEFER.value()).callbackData(DEFER.name())
+                });
+    }
 
-	@Autowired
+    private int offset = 0;
+
+    @Autowired
+    private MessageFormatter messageFormatter;
+    @Autowired
 	private TelegramConfig telegramConfig;
-	@Autowired
+    @Autowired
 	private PostService postService;
-
-	private int offset = 0;
+    @Autowired
 	private TelegramBot client;
-
-	private static class Keyboard {
-		final static InlineKeyboardMarkup DEFAULT = new InlineKeyboardMarkup(
-				new InlineKeyboardButton[]{
-						new InlineKeyboardButton(ACCEPT.value()).callbackData(ACCEPT.name()),
-						new InlineKeyboardButton(REJECT.value()).callbackData(REJECT.name()),
-						new InlineKeyboardButton(DEFER.value()).callbackData(DEFER.name())
-				});
-	}
 
 	@PostConstruct
 	private void init() {
-		client = telegramConfig.getClient();
 		List<Update> updates = getUpdates(offset);
 		setOffset(updates);
 	}
 
-	@Scheduled(fixedDelay = 1000)
+	@Scheduled(fixedDelayString = "${telegram.getUpdates.interval}")
 	private void getUpdates() {
 		exec(getUpdates(offset));
 	}
@@ -158,7 +158,7 @@ public class TelegramService {
 
     public boolean sendMessageToChannel(Post post) {
         String chatId = telegramConfig.getProperties().getCityChatId().get(post.getCity());
-        SendMessage request = new SendMessage(chatId, new String(post.getText(), Charset.forName("UTF-8")))
+        SendMessage request = new SendMessage(chatId, messageFormatter.format(post))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true);
 

@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
 @Data
@@ -56,5 +57,9 @@ public class Post extends Model<Long> {
     private LocalDateTime postDate;
 
 //    private List<PostAttachment> postAttachments;  //  todo
+
+    public String getTextAsString() {
+        return new String(text, Charset.forName("UTF-8"));
+    }
 }
 

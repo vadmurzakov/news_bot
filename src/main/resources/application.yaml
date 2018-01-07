@@ -5,6 +5,7 @@ vk:
 
 telegram:
   token: <token>
+  getUpdates.interval: 1000
   cityChatId:
     BELGOROD: "<@bgdChatId>"
 

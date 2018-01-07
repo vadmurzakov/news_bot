@@ -5,10 +5,8 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 @Data
-@Component
 @Configuration
 public class TelegramConfig {
 
@@ -19,8 +17,8 @@ public class TelegramConfig {
 		this.properties = properties;
 	}
 
-	@Bean(name = "telegramClient")
-	public TelegramBot getClient() {
+	@Bean
+	public TelegramBot telegramClient() {
 		return new TelegramBot(properties.getToken());
 	}
 }
