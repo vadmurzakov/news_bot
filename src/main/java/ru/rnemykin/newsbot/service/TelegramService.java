@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.rnemykin.newsbot.config.telegram.TelegramConfig;
+import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.AdminEnum;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
@@ -50,7 +50,7 @@ public class TelegramService {
     @Autowired
     private MessageFormatter messageFormatter;
     @Autowired
-	private TelegramConfig telegramConfig;
+	private TelegramProperties telegramProperties;
     @Autowired
 	private PostService postService;
     @Autowired
@@ -157,7 +157,7 @@ public class TelegramService {
 	}
 
     public boolean sendMessageToChannel(Post post) {
-        String chatId = telegramConfig.getProperties().getCityChatId().get(post.getCity());
+        String chatId = telegramProperties.getCityChatId().get(post.getCity());
         SendMessage request = new SendMessage(chatId, messageFormatter.format(post))
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(true);
