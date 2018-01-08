@@ -9,7 +9,6 @@ import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.TelegramService;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @Slf4j
@@ -18,17 +17,13 @@ public class SendingNewsJob {
 	@Autowired private PostService postService;
 	@Autowired private TelegramService telegramService;
 
-	@Scheduled(fixedDelay = 10000)
+	@Scheduled(cron = "${job.sendingNews.schedule}")
 	public void sendingNews() {
 		List<Post> allForModeration = postService.getAllForModeration();
 		allForModeration.forEach(post -> {
-			try {
-				telegramService.sendMessage(new String(post.getText(), "UTF-8"));
-				post.setStatus(PostStatusEnum.MODERATION);
-				postService.save(post);
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
+			telegramService.sendMessageToGroupAdmins(post.getTextAsString());
+			post.setStatus(PostStatusEnum.MODERATION);
+			postService.save(post);
 		});
 	}
 }

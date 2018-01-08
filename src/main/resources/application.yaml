@@ -25,3 +25,5 @@ job:
     schedule: '*/30 * * * * *'
   publishNews:
     schedule: '*/30 * * * * *'
+  sendingNews:
+    schedule: '*/30 * * * * *'

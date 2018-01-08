@@ -62,7 +62,7 @@ public class TelegramService {
             if (update.message() != null) {
                 Message message = update.message();
                 log.info(message.toString());
-                sendMessage("hello world"); //todo[vmurzakov]: сюда передавать текст новости
+                sendMessageToGroupAdmins("hello world"); //todo[vmurzakov]: сюда передавать текст новости
             } else if (update.callbackQuery() != null) {
                 log.info(update.callbackQuery().toString());
                 keyboard.processPressKeyboardInline(update.callbackQuery());
@@ -90,7 +90,7 @@ public class TelegramService {
 		this.offset = last == null ? 0 : last.updateId();
 	}
 
-	public void sendMessage(String text) {
+	public void sendMessageToGroupAdmins(String text) {
 		Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
 			SendMessage request = new SendMessage(adminEnum.id(), text)
 					.parseMode(ParseMode.HTML)
