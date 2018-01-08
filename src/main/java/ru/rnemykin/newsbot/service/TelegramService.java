@@ -24,7 +24,6 @@ import ru.rnemykin.newsbot.model.enums.AdminEnum;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -36,38 +35,42 @@ import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 @Service
 @Slf4j
 public class TelegramService {
-    private static class Keyboard {//todo separate class all logic for keyboard
-        final static InlineKeyboardMarkup DEFAULT = new InlineKeyboardMarkup(
-                new InlineKeyboardButton[]{
-                        new InlineKeyboardButton(ACCEPT.value()).callbackData(ACCEPT.name()),
-                        new InlineKeyboardButton(REJECT.value()).callbackData(REJECT.name()),
-                        new InlineKeyboardButton(DEFER.value()).callbackData(DEFER.name())
-                });
-    }
-
     private int offset = 0;
+    private Keyboard keyboard = new Keyboard();
 
-    @Autowired
     private MessageFormatter messageFormatter;
-    @Autowired
 	private TelegramProperties telegramProperties;
-    @Autowired
 	private PostService postService;
-    @Autowired
 	private TelegramBot client;
 
-	@PostConstruct
-	private void init() {
-		List<Update> updates = getUpdates(offset);
-		setOffset(updates);
+	@Autowired
+    public TelegramService(MessageFormatter msgFormatter, TelegramProperties tgrmProperties, PostService postService, TelegramBot client) {
+        this.messageFormatter = msgFormatter;
+        this.telegramProperties = tgrmProperties;
+        this.postService = postService;
+        this.client = client;
+
+        List<Update> updates = getUpdates(offset);
+        setOffset(updates);
+    }
+
+
+	@Scheduled(fixedDelayString = "${telegram.processNewsModeration.interval}")
+	private void processNewsModeration () {
+        List<Update> updates = getUpdates(offset);
+        for (Update update : updates) {
+            if (update.message() != null) {
+                Message message = update.message();
+                log.info(message.toString());
+                sendMessage("hello world"); //todo[vmurzakov]: сюда передавать текст новости
+            } else if (update.callbackQuery() != null) {
+                log.info(update.callbackQuery().toString());
+                keyboard.processPressKeyboardInline(update.callbackQuery());
+            }
+        }
 	}
 
-	@Scheduled(fixedDelayString = "${telegram.getUpdates.interval}")
-	private void getUpdates() {
-		exec(getUpdates(offset));
-	}
-
-	public List<Update> getUpdates(int offset) {
+	private List<Update> getUpdates(int offset) {
 		GetUpdates getUpdates = new GetUpdates().offset(offset + 1);
 		GetUpdatesResponse response = client.execute(getUpdates);
 
@@ -87,47 +90,6 @@ public class TelegramService {
 		this.offset = last == null ? 0 : last.updateId();
 	}
 
-	private void exec(List<Update> updates) {
-		for (Update update : updates) {
-			if (update.message() != null) {
-				Message message = update.message();
-				log.info(message.toString());
-				sendMessage("hello world"); //todo[vmurzakov]: сюда передавать текст новости
-			} else if (update.callbackQuery() != null) {
-				log.info(update.callbackQuery().toString());
-				processPressKeyboardInline(update.callbackQuery());
-			}
-
-		}
-	}
-
-	/**
-	 * Обрабатывает нажатие inlineKeyboard:
-	 * 1. Сообщение с Новостью редактируется для всех админов
-	 * 2. Убирается клавиатура
-	 * 3. Вначале сообщения прописывается статус, который был присвоен Новости
-	 * Если один из админов промодерировал Новость, другие админы это увидят и не смогут промодерировать Новость
-	 *
-	 * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
-	 */
-	private void processPressKeyboardInline(CallbackQuery callbackQuery) {
-		Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
-			Long chatId = adminEnum.id();
-			Integer messageId = callbackQuery.message().messageId();
-			EditMessageText editMessageText = new EditMessageText(chatId, messageId + adminEnum.offset(), "`" + callbackQuery.data() + "` \n" + callbackQuery.message().text())
-					.parseMode(ParseMode.Markdown)
-					.disableWebPagePreview(true);
-			BaseResponse response = client.execute(editMessageText);
-			Post post = postService.findByText(callbackQuery.message().text());
-			changeStatusForPost(post, ModerationStatusEnum.from(callbackQuery.data()));
-			if (response.isOk()) {
-				log.info("{} moderated post with status {}", adminEnum.name(), callbackQuery.data());
-			} else {
-				log.error("Error press inlineKeyboard: " + response.toString());
-			}
-		});
-	}
-
 	/**
 	 * Отправляет сообщение всем админам (например Новость на модерацию)
 	 *
@@ -137,23 +99,13 @@ public class TelegramService {
 		Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
 			SendMessage request = new SendMessage(adminEnum.id(), text)
 					.parseMode(ParseMode.HTML)
-					.replyMarkup(Keyboard.DEFAULT);
+					.replyMarkup(keyboard.DEFAULT);
 
 			SendResponse sendResponse = client.execute(request);
 			if (!sendResponse.isOk()) {
 				log.error("Error send message: " + sendResponse.toString());
 			}
 		});
-	}
-
-	private void changeStatusForPost(Post post, ModerationStatusEnum status) {
-		if(status == ACCEPT) {
-		    post.setStatus(PostStatusEnum.MODERATED);
-        } else if(status == REJECT) {
-		    post.setStatus(PostStatusEnum.CANCELED);
-        }
-
-        postService.save(post);
 	}
 
     public boolean sendMessageToChannel(Post post) {
@@ -169,4 +121,55 @@ public class TelegramService {
         return execute.isOk();
     }
 
+
+    private class Keyboard {
+        final InlineKeyboardMarkup DEFAULT = new InlineKeyboardMarkup(
+                new InlineKeyboardButton[]{
+                        new InlineKeyboardButton(ACCEPT.value()).callbackData(ACCEPT.name()),
+                        new InlineKeyboardButton(REJECT.value()).callbackData(REJECT.name()),
+                        new InlineKeyboardButton(DEFER.value()).callbackData(DEFER.name())
+                });
+
+        /**
+         * Обрабатывает нажатие inlineKeyboard:
+         * 1. Сообщение с Новостью редактируется для всех админов
+         * 2. Убирается клавиатура
+         * 3. Вначале сообщения прописывается статус, который был присвоен Новости
+         * Если один из админов промодерировал Новость, другие админы это увидят и не смогут промодерировать Новость
+         *
+         * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
+         */
+        private void processPressKeyboardInline(CallbackQuery callbackQuery) {
+            Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
+                BaseResponse response = client.execute(makeEditMessage(callbackQuery, adminEnum));
+
+                Post post = postService.findByText(callbackQuery.message().text());
+                ModerationStatusEnum moderationStatus = ModerationStatusEnum.from(callbackQuery.data());
+                if(moderationStatus == ACCEPT) {
+                    post.setStatus(PostStatusEnum.MODERATED);
+                } else if(moderationStatus == REJECT) {
+                    post.setStatus(PostStatusEnum.CANCELED);
+                }
+                postService.save(post);
+
+                if (response.isOk()) {
+                    log.info("{} moderated post with status {}", adminEnum.name(), callbackQuery.data());
+                } else { //todo  если с ошибкой, есть ли смысл выполнять обновление поста?
+                    log.error("Error press inlineKeyboard: " + response.toString());
+                }
+            });
+        }
+
+        private EditMessageText makeEditMessage(CallbackQuery callbackQuery, AdminEnum adminEnum) {
+            EditMessageText editMessageText = new EditMessageText(
+                    adminEnum.id(),
+                    callbackQuery.message().messageId() + adminEnum.offset(),
+                    "`" + callbackQuery.data() + "` \n" + callbackQuery.message().text()
+            );
+
+            return editMessageText
+                    .parseMode(ParseMode.Markdown)
+                    .disableWebPagePreview(true);
+        }
+    }
 }
