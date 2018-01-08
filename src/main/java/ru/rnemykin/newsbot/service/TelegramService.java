@@ -90,11 +90,6 @@ public class TelegramService {
 		this.offset = last == null ? 0 : last.updateId();
 	}
 
-	/**
-	 * Отправляет сообщение всем админам (например Новость на модерацию)
-	 *
-	 * @param text текст сообщения
-	 */
 	public void sendMessage(String text) {
 		Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
 			SendMessage request = new SendMessage(adminEnum.id(), text)
