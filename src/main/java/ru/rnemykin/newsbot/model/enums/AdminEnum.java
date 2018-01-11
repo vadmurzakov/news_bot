@@ -5,22 +5,16 @@ package ru.rnemykin.newsbot.model.enums;
  * т.е. если один из админов модерирует новость, все остальные админы увидят этот результат
  */
 public enum AdminEnum {
-	VADMURZAKOV(186736203L, 0),
-	RNEMYKIN(228618478L, 1);
+	VADMURZAKOV(186736203),
+	RNEMYKIN(228618478);
 
-	private Long id;
-	private Integer offset;
+	private Integer id;
 
-	AdminEnum(Long id, Integer offset) {
+	AdminEnum(Integer id) {
 		this.id = id;
-		this.offset = offset;
 	}
 
-	public Long id() {
+	public Integer id() {
 		return id;
-	}
-
-	public Integer offset() {
-		return offset;
 	}
 }

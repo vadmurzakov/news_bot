@@ -33,7 +33,7 @@ public class PostService {
 	}
 
 	public List<Post> getAllForModeration() {
-		return postRepository.findAllByStatus(PostStatusEnum.NEW);
+		return postRepository.findAllByStatus(PostStatusEnum.NEW, new PageRequest(0, 3));
 	}
 
 	public Post findByText(String text) {

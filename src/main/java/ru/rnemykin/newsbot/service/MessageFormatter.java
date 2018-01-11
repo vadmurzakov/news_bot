@@ -7,7 +7,7 @@ import java.text.MessageFormat;
 
 @Component
 public class MessageFormatter {
-    private static final String MSG_FORMAT = "{0}\n\n{1}";
+    private static final String MSG_FORMAT = "{0}\n\n<i>источник: {1}</i>";
 
     public String format(Post post) {
         return MessageFormat.format(MSG_FORMAT, post.getTextAsString(), post.getPostPublic().url());
