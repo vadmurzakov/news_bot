@@ -1,5 +1,7 @@
 package ru.rnemykin.newsbot.model.enums;
 
+import java.util.Arrays;
+
 public enum ModerationStatusEnum {
 	ACCEPT("принять"),
 	REJECT("отклонить"),
@@ -15,8 +17,10 @@ public enum ModerationStatusEnum {
 		return value;
 	}
 
-	public static ModerationStatusEnum from(String sourct) {
-		//todo[vmurzakov]: stub
-		return null;
+	public static ModerationStatusEnum from(String source) {
+		return Arrays.stream(values())
+				.filter(e -> e.name().equalsIgnoreCase(source))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("can't find enum value for " + source));
 	}
 }

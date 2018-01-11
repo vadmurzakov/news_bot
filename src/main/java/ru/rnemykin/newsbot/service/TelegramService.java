@@ -137,6 +137,12 @@ public class TelegramService {
         private void processPressKeyboardInline(CallbackQuery callbackQuery) {
             Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
                 BaseResponse response = client.execute(makeEditMessage(callbackQuery, adminEnum));
+                if(!response.isOk()) {
+                    log.error("Error press inlineKeyboard: " + response.toString());
+                    return;
+                }
+
+                log.info("{} moderated post with status {}", adminEnum.name(), callbackQuery.data());
 
                 Post post = postService.findByText(callbackQuery.message().text());
                 ModerationStatusEnum moderationStatus = ModerationStatusEnum.from(callbackQuery.data());
@@ -146,12 +152,6 @@ public class TelegramService {
                     post.setStatus(PostStatusEnum.CANCELED);
                 }
                 postService.save(post);
-
-                if (response.isOk()) {
-                    log.info("{} moderated post with status {}", adminEnum.name(), callbackQuery.data());
-                } else { //todo  если с ошибкой, есть ли смысл выполнять обновление поста?
-                    log.error("Error press inlineKeyboard: " + response.toString());
-                }
             });
         }
 
