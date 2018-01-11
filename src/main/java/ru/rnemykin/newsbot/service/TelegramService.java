@@ -127,7 +127,7 @@ public class TelegramService {
         }
         postService.save(post);
         editMessageForAdmins(callbackQuery);
-        log.info("{} moderated post with status {}", callbackQuery.from().username(), callbackQuery.data());
+        log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
     }
 
     @Deprecated
@@ -167,7 +167,7 @@ public class TelegramService {
         return new EditMessageText(
                 chatId,
                 messageId,
-                "`" + callbackQuery.data() + "` \n" + callbackQuery.message().text()
+                "`" + callbackQuery.data() + " by " + callbackQuery.from().username() + "` \n" + callbackQuery.message().text()
         ).parseMode(ParseMode.Markdown).disableWebPagePreview(true);
     }
 
