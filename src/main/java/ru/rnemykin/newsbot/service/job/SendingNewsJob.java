@@ -14,12 +14,18 @@ import java.util.List;
 @Slf4j
 @Component
 public class SendingNewsJob {
-	@Autowired private PostService postService;
-	@Autowired private TelegramService telegramService;
+	private final PostService postService;
+	private final TelegramService telegramService;
+
+	@Autowired
+	public SendingNewsJob(PostService postService, TelegramService telegramService) {
+		this.postService = postService;
+		this.telegramService = telegramService;
+	}
 
 	@Scheduled(cron = "${job.sendingNews.schedule}")
 	public void sendingNews() {
-		List<Post> allForModeration = postService.getAllForModeration();
+		List<Post> allForModeration = postService.findAllByStatus(PostStatusEnum.NEW, 3);
 		allForModeration.forEach(post -> {
 			telegramService.sendMessageToGroupAdmins(post.getTextAsString());
 			post.setStatus(PostStatusEnum.MODERATION);

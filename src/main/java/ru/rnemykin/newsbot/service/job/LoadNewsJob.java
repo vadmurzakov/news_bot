@@ -3,7 +3,6 @@ package ru.rnemykin.newsbot.service.job;
 import com.vk.api.sdk.objects.wall.WallpostFull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.model.Post;
@@ -47,10 +46,8 @@ public class LoadNewsJob {
             List<WallpostFull> vkWallPosts = vkService.getWallPosts(cityPublic, POSTS_FETCH_SIZE);
             log.info("retrieve {} vkWallPosts", vkWallPosts.size());
             if (!isEmpty(vkWallPosts)) {
-                PageRequest pageRequest = new PageRequest(0, POSTS_FETCH_SIZE);
-                List<Post> publicPosts = postService.findAllByOwnerId(cityPublic.id(), pageRequest);
                 List<Post> posts = vkWallPosts.stream()
-                        .filter(vkPost -> publicPosts.stream().noneMatch(p -> p.getPostId().equals(valueOf(vkPost.getId()))))
+                        .filter(vkPost -> postService.findVkPost(vkPost.getId(), cityPublic) == null)
                         .map(this::mapToPost)
                         .peek(p -> {
                             p.setCity(key);

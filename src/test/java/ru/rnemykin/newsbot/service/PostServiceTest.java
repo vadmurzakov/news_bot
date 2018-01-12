@@ -29,11 +29,11 @@ public class PostServiceTest {
 		assertNotNull(posts);
 	}
 
-	@Test
-	public void getAllModeration() {
-		List<Post> posts = postService.getAllForModeration();
-		assertNotNull(posts);
-	}
+//	@Test
+//	public void getAllModeration() {
+//		List<Post> posts = postService.getAllForModeration();
+//		assertNotNull(posts);
+//	}
 
 	@Test
 	public void save() {
