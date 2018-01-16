@@ -12,7 +12,6 @@ import ru.rnemykin.newsbot.model.enums.PublicEnum;
 import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.VkService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +71,6 @@ public class LoadNewsJob {
         post.setRepostsCount(p.getReposts().getCount() == null ? p.getReposts().getCount() : 0);
         post.setCommentsCount(p.getComments().getCount() == null ? p.getComments().getCount() : 0);
         post.setIsPinned(Integer.valueOf(1).equals(p.getIsPinned()));
-        post.setCreateDate(LocalDateTime.now());
         post.setStatus(PostStatusEnum.NEW);
         return post;
     }

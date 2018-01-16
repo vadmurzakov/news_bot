@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
@@ -47,7 +48,6 @@ public class Post extends Model<Long> {
     private String type;
 
     @Lob
-    @Column(name="column_name", length = 10000)
     private byte[] text;
     private long likesCount;
     private long viewsCount;
@@ -60,6 +60,13 @@ public class Post extends Model<Long> {
 
     public String getTextAsString() {
         return new String(text, Charset.forName("UTF-8"));
+    }
+
+
+    @PrePersist
+    void onInsert() {
+        sentAttemptsCount = 0;
+        createDate = LocalDateTime.now();
     }
 }
 
