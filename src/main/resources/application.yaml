@@ -12,10 +12,9 @@ telegram:
 
 spring:
   jpa:
-    properties:
-      generate-ddl: false
-      hibernate:
-        ddl-auto: validate
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
 
 liquibase:
   changeLog: classpath:liquibase/changelog-master.xml
