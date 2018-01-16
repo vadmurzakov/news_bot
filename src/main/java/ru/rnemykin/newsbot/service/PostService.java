@@ -8,20 +8,30 @@ import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
 import ru.rnemykin.newsbot.repository.PostRepository;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class PostService {
+	private final PostRepository postRepository;
 
 	@Autowired
-	private PostRepository postRepository;
+	public PostService(PostRepository postRepository) {
+		this.postRepository = postRepository;
+	}
 
 	public List<Post> getAll() {
-		return (List<Post>) postRepository.findAll();
+		Iterable<Post> posts = postRepository.findAll();
+
+		List<Post> result = new ArrayList<>();
+		posts.forEach(result::add);
+		return result;
 	}
 
 	public void save(List<Post> posts) {
-		posts.forEach(this::save);
+		postRepository.save(posts);
 	}
 
 	public void save(Post post) {
