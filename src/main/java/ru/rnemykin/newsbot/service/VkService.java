@@ -1,6 +1,7 @@
 package ru.rnemykin.newsbot.service;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.ServiceActor;
 import com.vk.api.sdk.exceptions.ApiException;
@@ -50,12 +51,14 @@ public class VkService {
 
 	public List<WallpostFull> getWallPosts(PublicEnum group, int postsCount) {
 		try {
-			return vk.wall().get(actor)
-                    .ownerId(-group.id())
-                    .filter(WallGetFilter.OWNER)
-					.count(postsCount)
-                    .execute()
-                    .getItems();
+			return Lists.reverse(
+					vk.wall().get(actor)
+							.ownerId(-group.id())
+							.filter(WallGetFilter.OWNER)
+							.count(postsCount)
+							.execute()
+							.getItems()
+			);
 		} catch (ApiException | ClientException e) {
 			log.error("Error get wall posts for group {}, {}", group, e.getMessage());
 			return emptyList();
