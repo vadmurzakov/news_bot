@@ -4,8 +4,7 @@ import java.util.Arrays;
 
 public enum ModerationStatusEnum {
 	ACCEPT("принять"),
-	REJECT("отклонить"),
-	DEFER("отложить");
+	REJECT("отклонить");
 
 	private String value;
 

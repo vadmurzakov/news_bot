@@ -121,10 +121,9 @@ public class TelegramService {
             post.setStatus(PostStatusEnum.MODERATED);
         } else if (moderationStatus == REJECT) {
             post.setStatus(PostStatusEnum.CANCELED);
-        } else {
-            post.setStatus(PostStatusEnum.MODERATION);
         }
         postService.save(post);
+
         editMessageForAdmins(callbackQuery);
         log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
     }
