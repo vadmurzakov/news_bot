@@ -27,7 +27,7 @@ public class SendingNewsJob {
 	public void sendingNews() {
 		List<Post> allForModeration = postService.findAllByStatus(PostStatusEnum.NEW, 3);
 		allForModeration.forEach(post -> {
-			telegramService.sendMessageToGroupAdmins(post.getTextAsString());
+			telegramService.sendMessageToGroupAdmins(post);
 			post.setStatus(PostStatusEnum.MODERATION);
 			postService.save(post);
 		});

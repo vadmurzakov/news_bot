@@ -9,7 +9,6 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -86,9 +85,9 @@ public class TelegramService {
         this.offset = last == null ? 0 : last.updateId();
     }
 
-    public void sendMessageToGroupAdmins(String text) {
+    public void sendMessageToGroupAdmins(Post post) {
         Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
-            SendMessage request = new SendMessage(adminEnum.id(), text)
+            SendMessage request = new SendMessage(adminEnum.id(), messageFormatter.format(post))
                     .parseMode(ParseMode.HTML)
                     .replyMarkup(Keyboard.DEFAULT)
                     .disableWebPagePreview(false);
