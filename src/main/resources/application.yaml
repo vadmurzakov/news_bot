@@ -21,8 +21,8 @@ liquibase:
 
 job:
   loadNews:
-    schedule: '*/30 * * * * *'
+    schedule: '0 * * * * *'
   publishNews:
-    schedule: '*/30 * * * * *'
+    schedule: '0 * * * * *'
   sendingNews:
-    schedule: '*/30 * * * * *'
+    schedule: '0 * * * * *'

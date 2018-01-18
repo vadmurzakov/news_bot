@@ -1,5 +1,6 @@
 package ru.rnemykin.newsbot;
 
+import com.google.common.collect.Sets;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -11,8 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.singleton;
 import static java.util.Collections.unmodifiableMap;
+import static ru.rnemykin.newsbot.model.enums.PublicEnum.BEELIVE;
+import static ru.rnemykin.newsbot.model.enums.PublicEnum.BELGOROD1;
+import static ru.rnemykin.newsbot.model.enums.PublicEnum.BEL_INTER;
 
 @EnableScheduling
 @SpringBootApplication
@@ -25,7 +28,7 @@ public class NewsBotApplication {
 	@Bean
 	public Map<CityEnum, Set<PublicEnum>> cityNews() {
 		return unmodifiableMap(new HashMap<CityEnum, Set<PublicEnum>>() {{
-			put(CityEnum.BELGOROD, singleton(PublicEnum.BEELIVE));
+			put(CityEnum.BELGOROD, Sets.newHashSet(BEELIVE, BEL_INTER, BELGOROD1));
 		}});
 	}
 

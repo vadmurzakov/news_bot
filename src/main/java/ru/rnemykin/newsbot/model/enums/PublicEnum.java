@@ -1,7 +1,9 @@
 package ru.rnemykin.newsbot.model.enums;
 
 public enum PublicEnum {
-    BEELIVE(36378934, "https://vk.com/belgorod");
+    BEELIVE(36378934, "https://vk.com/belgorod"),
+    BEL_INTER(35961352, "https://vk.com/belinter"),
+    BELGOROD1(2044704, "https://vk.com/belgorod1");
 
     private Integer id;
     private String url;
