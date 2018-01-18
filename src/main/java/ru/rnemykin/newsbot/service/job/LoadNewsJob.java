@@ -66,10 +66,10 @@ public class LoadNewsJob {
         post.setType(p.getPostType().getValue());
         post.setPostDate(ofEpochMilli(p.getDate() * 1000L).atZone(systemDefault()).toLocalDateTime());
         post.setText(p.getText().getBytes());
-        post.setLikesCount(p.getLikes().getCount() == null ? p.getLikes().getCount() : 0);
-        post.setViewsCount(p.getViews().getCount() == null ? p.getViews().getCount() : 0);
-        post.setRepostsCount(p.getReposts().getCount() == null ? p.getReposts().getCount() : 0);
-        post.setCommentsCount(p.getComments().getCount() == null ? p.getComments().getCount() : 0);
+        post.setLikesCount(p.getLikes().getCount() != null ? p.getLikes().getCount() : 0);
+        post.setViewsCount(p.getViews().getCount() != null ? p.getViews().getCount() : 0);
+        post.setRepostsCount(p.getReposts().getCount() != null ? p.getReposts().getCount() : 0);
+        post.setCommentsCount(p.getComments().getCount() != null ? p.getComments().getCount() : 0);
         post.setIsPinned(Integer.valueOf(1).equals(p.getIsPinned()));
         post.setStatus(PostStatusEnum.NEW);
         return post;
