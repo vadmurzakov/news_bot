@@ -87,7 +87,7 @@ public class TelegramService {
 
     public void sendMessageToGroupAdmins(Post post) {
         Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
-            SendMessage request = new SendMessage(adminEnum.id(), messageFormatter.format(post))
+            SendMessage request = new SendMessage(adminEnum.id(), post.getTextAsString())
                     .parseMode(ParseMode.HTML)
                     .replyMarkup(Keyboard.DEFAULT)
                     .disableWebPagePreview(false);
