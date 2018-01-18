@@ -15,14 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
+import ru.rnemykin.newsbot.config.properties.ChatAdmin;
 import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
 import ru.rnemykin.newsbot.model.Keyboard;
 import ru.rnemykin.newsbot.model.Post;
-import ru.rnemykin.newsbot.model.enums.AdminEnum;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,17 +34,23 @@ import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 public class TelegramService {
     private int offset = 0;
 
-    private MessageFormatter messageFormatter;
-    private TelegramProperties telegramProperties;
-    private PostService postService;
-    private TelegramBot client;
+    private final MessageFormatter messageFormatter;
+    private final TelegramProperties telegramProperties;
+    private final PostService postService;
+    private final TelegramBot client;
+    private final ChatAdminsFactory chatAdminsFactory;
 
     @Autowired
-    public TelegramService(MessageFormatter msgFormatter, TelegramProperties tgrmProperties, PostService postService, TelegramBot client) {
+    public TelegramService(MessageFormatter msgFormatter,
+                           TelegramProperties tgrmProperties,
+                           PostService postService,
+                           TelegramBot client,
+                           ChatAdminsFactory chatAdminsFactory) {
         this.messageFormatter = msgFormatter;
         this.telegramProperties = tgrmProperties;
         this.postService = postService;
         this.client = client;
+        this.chatAdminsFactory = chatAdminsFactory;
 
         List<Update> updates = getUpdates(offset);
         setOffset(updates);
@@ -86,17 +92,18 @@ public class TelegramService {
     }
 
     public void sendMessageToGroupAdmins(Post post) {
-        Arrays.stream(AdminEnum.values()).forEach(adminEnum -> {
-            SendMessage request = new SendMessage(adminEnum.id(), post.getTextAsString())
+        List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());
+        cityAdmins.forEach(adminEnum -> {
+            SendMessage request = new SendMessage(adminEnum.getId(), post.getTextAsString())
                     .parseMode(ParseMode.HTML)
                     .replyMarkup(Keyboard.DEFAULT)
                     .disableWebPagePreview(false);
 
             SendResponse sendResponse = client.execute(request);
             if (!sendResponse.isOk()) {
-                log.error("Error send message for: " + adminEnum.name());
+                log.error("Error send message for: " + adminEnum.getName());
             } else {
-                log.info("Send news in chat for {}, telegramMessageId={}", adminEnum.name(), sendResponse.message().messageId());
+                log.info("Send news in chat for {}, telegramMessageId={}", adminEnum.getName(), sendResponse.message().messageId());
             }
         });
     }
@@ -130,12 +137,13 @@ public class TelegramService {
 
     @Deprecated
     private void editMessageForAdmins(CallbackQuery callbackQuery) {
-        if (callbackQuery.from().id().equals(AdminEnum.VADMURZAKOV.id())) {
-            client.execute(makeEditMessage(callbackQuery, AdminEnum.VADMURZAKOV.id(), callbackQuery.message().messageId()));
-            client.execute(makeEditMessage(callbackQuery, AdminEnum.RNEMYKIN.id(), callbackQuery.message().messageId() + 1));
-        } else if (callbackQuery.from().id().equals(AdminEnum.RNEMYKIN.id())) {
-            client.execute(makeEditMessage(callbackQuery, AdminEnum.VADMURZAKOV.id(), callbackQuery.message().messageId() - 1));
-            client.execute(makeEditMessage(callbackQuery, AdminEnum.RNEMYKIN.id(), callbackQuery.message().messageId()));
+        ChatAdmin admin = chatAdminsFactory.findById(callbackQuery.from().id());
+        if (chatAdminsFactory.murmurId == admin.getId()) {
+            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.murmurId, callbackQuery.message().messageId()));
+            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.nemnemId, callbackQuery.message().messageId() + 1));
+        } else if (chatAdminsFactory.nemnemId == admin.getId()) {
+            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.murmurId, callbackQuery.message().messageId() - 1));
+            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.nemnemId, callbackQuery.message().messageId()));
         }
     }
 

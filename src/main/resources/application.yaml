@@ -26,3 +26,26 @@ job:
     schedule: '0 * * * * *'
   sendingNews:
     schedule: '0 * * * * *'
+
+
+news:
+  publics:
+    BELGOROD:
+      -
+        id: 36378934
+        url: https://vk.com/belgorod
+      -
+        id: 35961352
+        url: https://vk.com/belinter
+      -
+        id: 82854310
+        url: https://vk.com/newsbelgorod
+
+  chatAdmins:
+    BELGOROD:
+      -
+        id: 186736203
+        name: VADMURZAKOV
+      -
+        id: 228618478
+        name: RNEMYKIN

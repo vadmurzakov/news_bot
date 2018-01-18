@@ -12,6 +12,7 @@ import com.vk.api.sdk.queries.wall.WallGetFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.rnemykin.newsbot.config.properties.Public;
 import ru.rnemykin.newsbot.config.vkontakte.VkConfig;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
 
@@ -49,11 +50,11 @@ public class VkService {
 		}
 	}
 
-	public List<WallpostFull> getWallPosts(PublicEnum group, int postsCount) {
+	public List<WallpostFull> getWallPosts(Public group, int postsCount) {
 		try {
 			return Lists.reverse(
 					vk.wall().get(actor)
-							.ownerId(-group.id())
+							.ownerId(-group.getId())
 							.filter(WallGetFilter.OWNER)
 							.count(postsCount)
 							.execute()

@@ -5,7 +5,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
-import ru.rnemykin.newsbot.model.enums.PublicEnum;
 
 import java.util.List;
 
@@ -17,5 +16,5 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
 
     List<Post> findAllByStatusOrderById(PostStatusEnum status, Pageable pageRequest);
 
-    Post findByPostIdAndPostPublic(Long postId, PublicEnum postPublic);
+    Post findByPostIdAndPublicId(Long postId, Integer publicId);
 }

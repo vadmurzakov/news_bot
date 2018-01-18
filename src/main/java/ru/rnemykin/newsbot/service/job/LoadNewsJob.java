@@ -5,16 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import ru.rnemykin.newsbot.config.factory.PublicsFactory;
 import ru.rnemykin.newsbot.model.Post;
-import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
-import ru.rnemykin.newsbot.model.enums.PublicEnum;
 import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.VkService;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static java.lang.Long.valueOf;
 import static java.time.Instant.ofEpochMilli;
@@ -28,29 +25,29 @@ public class LoadNewsJob {
     private static final int POSTS_FETCH_SIZE = 10;
 
     private final VkService vkService;
-    private final Map<CityEnum, Set<PublicEnum>> cityNews;
+    private final PublicsFactory publicsFactory;
     private final PostService postService;
 
     @Autowired
-    public LoadNewsJob(VkService vkService, Map<CityEnum, Set<PublicEnum>> cityNews, PostService postService) {
+    public LoadNewsJob(VkService vkService, PublicsFactory publicsFactory, PostService postService) {
         this.vkService = vkService;
-        this.cityNews = cityNews;
+        this.publicsFactory = publicsFactory;
         this.postService = postService;
     }
 
 
     @Scheduled(cron = "${job.loadNews.schedule}")
     public void loadNews() {
-        cityNews.forEach((key, value) -> value.forEach(cityPublic -> {
-            List<WallpostFull> vkWallPosts = vkService.getWallPosts(cityPublic, POSTS_FETCH_SIZE);
+        publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
+            List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
             log.info("retrieve {} vkWallPosts", vkWallPosts.size());
             if (!isEmpty(vkWallPosts)) {
                 List<Post> posts = vkWallPosts.stream()
-                        .filter(vkPost -> postService.findVkPost(vkPost.getId(), cityPublic) == null)
+                        .filter(vkPost -> postService.findVkPost(vkPost.getId(), newsPublic) == null)
                         .map(this::mapToPost)
                         .peek(p -> {
                             p.setCity(key);
-                            p.setPostPublic(cityPublic);
+                            p.setPublicId(newsPublic.getId());
                         })
                         .collect(toList());
 
