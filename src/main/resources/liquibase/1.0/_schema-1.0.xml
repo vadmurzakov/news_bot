@@ -61,4 +61,22 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="21.01.2018-1-1" author="rnemykin">
+        <createTable tableName="moderate_message">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="moderate_message_pk"/>
+            </column>
+            <column name="post_id" type="BIGINT" remarks="fk to post.id">
+                <constraints nullable="false" references="post(id)" foreignKeyName="moderate_message_post_id_fk"/>
+            </column>
+            <column name="admin_id" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="telegram_message_id" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="processed_time" type="DATETIME"/>
+            <column name="processed_status" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.ModerationStatusEnum"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

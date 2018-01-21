@@ -6,20 +6,30 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Data
+@Table
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-//@Table
-//@Entity
 public class ModerateMessage {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Long postId;
     private Integer adminId;
     private Integer telegramMessageId;
     private LocalDateTime processedTime;
 
-//    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private ModerationStatusEnum processedStatus;
 }
