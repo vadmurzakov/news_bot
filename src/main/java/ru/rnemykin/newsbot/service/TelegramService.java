@@ -19,6 +19,7 @@ import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
 import ru.rnemykin.newsbot.config.properties.ChatAdmin;
 import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
 import ru.rnemykin.newsbot.model.Keyboard;
+import ru.rnemykin.newsbot.model.ModerateMessage;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
@@ -101,10 +102,17 @@ public class TelegramService {
                     .disableWebPagePreview(false);
 
             SendResponse sendResponse = client.execute(request);
-            if (!sendResponse.isOk()) {
-                log.error("Error send message for: " + adminEnum.getName());
-            } else {
+            if (sendResponse.isOk()) {
                 log.info("Send news in chat for {}, telegramMessageId={}", adminEnum.getName(), sendResponse.message().messageId());
+                ModerateMessage msg = ModerateMessage.builder()
+                        .postId(post.getPostId())
+                        .adminId(adminEnum.getId())
+                        .telegramMessageId(sendResponse.message().messageId())
+                        .build();
+
+                //  todo save
+            } else {
+                log.error("Error send message for: " + adminEnum.getName());
             }
         });
     }
