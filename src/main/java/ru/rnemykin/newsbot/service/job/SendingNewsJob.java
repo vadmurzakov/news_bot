@@ -9,6 +9,7 @@ import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.TelegramService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -28,6 +29,7 @@ public class SendingNewsJob {
 		List<Post> allForModeration = postService.findAllByStatus(PostStatusEnum.NEW, 3);
 		allForModeration.forEach(post -> {
 			telegramService.sendMessageToGroupAdmins(post);
+			post.setSentDate(LocalDateTime.now());
 			post.setStatus(PostStatusEnum.MODERATION);
 			postService.save(post);
 		});

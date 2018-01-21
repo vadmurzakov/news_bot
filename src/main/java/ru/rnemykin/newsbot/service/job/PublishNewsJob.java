@@ -8,6 +8,7 @@ import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.TelegramService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -27,6 +28,7 @@ public class PublishNewsJob {
         List<Post> posts = postService.findAllByStatus(PostStatusEnum.MODERATED, 100);
         posts.forEach(p -> {
             if (telegramService.sendMessageToChannel(p)) {
+                p.setPublishDate(LocalDateTime.now());
                 p.setStatus(PostStatusEnum.PUBLISHED);
             } else {
                 p.setSentAttemptsCount(p.getSentAttemptsCount() + 1);

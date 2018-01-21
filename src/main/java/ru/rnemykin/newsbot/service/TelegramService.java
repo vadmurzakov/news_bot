@@ -23,6 +23,7 @@ import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -127,6 +128,7 @@ public class TelegramService {
         if (moderationStatus == ACCEPT) {
             post.setStatus(PostStatusEnum.MODERATED);
         } else if (moderationStatus == REJECT) {
+            post.setCancelDate(LocalDateTime.now());
             post.setStatus(PostStatusEnum.CANCELED);
         }
         postService.save(post);
