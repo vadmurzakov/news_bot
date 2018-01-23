@@ -38,15 +38,15 @@ public class PostService {
 		postRepository.save(post);
 	}
 
-	public Post findByText(String text) {
-		return postRepository.findByText(text.getBytes());
-	}
-
 	public List<Post> findAllByStatus(PostStatusEnum status, int recordsCount) {
 		return postRepository.findAllByStatusOrderById(status, new PageRequest(0, recordsCount));
 	}
 
 	public Post findVkPost(Integer vkPostId, Public postPublic) {
 		return postRepository.findByPostIdAndPublicId(vkPostId.longValue(), postPublic.getId());
+	}
+
+	public Post findById(long id) {
+		return postRepository.findOne(id);
 	}
 }

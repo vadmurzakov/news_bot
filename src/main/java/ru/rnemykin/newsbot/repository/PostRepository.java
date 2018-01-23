@@ -12,8 +12,6 @@ import java.util.List;
 public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
     List<Post> findAllByOwnerIdOrderByIdDesc(long ownerId, Pageable pageable);
 
-    Post findByText(byte[] text);
-
     List<Post> findAllByStatusOrderById(PostStatusEnum status, Pageable pageRequest);
 
     Post findByPostIdAndPublicId(Long postId, Integer publicId);

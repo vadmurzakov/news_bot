@@ -12,6 +12,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -32,4 +34,8 @@ public class ModerateMessage {
 
     @Enumerated(EnumType.STRING)
     private ModerationStatusEnum processedStatus;
+
+    @OneToOne
+    @JoinColumn(name = "postId", insertable = false, updatable = false)
+    private Post post;
 }

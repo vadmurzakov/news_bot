@@ -28,11 +28,12 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.ACCEPT;
 import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 
-@Service
 @Slf4j
+@Service
 public class TelegramService {
     private int offset = 0;
 
@@ -41,18 +42,21 @@ public class TelegramService {
     private final PostService postService;
     private final TelegramBot client;
     private final ChatAdminsFactory chatAdminsFactory;
+    private final ModerateMessageService moderateMessageService;
 
     @Autowired
     public TelegramService(MessageFormatter msgFormatter,
                            TelegramProperties tgrmProperties,
                            PostService postService,
                            TelegramBot client,
-                           ChatAdminsFactory chatAdminsFactory) {
+                           ChatAdminsFactory chatAdminsFactory,
+                           ModerateMessageService moderateMessageService) {
         this.messageFormatter = msgFormatter;
         this.telegramProperties = tgrmProperties;
         this.postService = postService;
         this.client = client;
         this.chatAdminsFactory = chatAdminsFactory;
+        this.moderateMessageService = moderateMessageService;
 
         List<Update> updates = getUpdates(offset);
         setOffset(updates);
@@ -105,12 +109,12 @@ public class TelegramService {
             if (sendResponse.isOk()) {
                 log.info("Send news in chat for {}, telegramMessageId={}", adminEnum.getName(), sendResponse.message().messageId());
                 ModerateMessage msg = ModerateMessage.builder()
-                        .postId(post.getPostId())
+                        .postId(post.getId())
                         .adminId(adminEnum.getId())
                         .telegramMessageId(sendResponse.message().messageId())
                         .build();
 
-                //  todo save
+                moderateMessageService.save(msg);
             } else {
                 log.error("Error send message for: " + adminEnum.getName());
             }
@@ -130,33 +134,6 @@ public class TelegramService {
         return execute.isOk();
     }
 
-    private void processPressKeyboardInline(CallbackQuery callbackQuery) {
-        Post post = postService.findByText(callbackQuery.message().text());
-        ModerationStatusEnum moderationStatus = ModerationStatusEnum.from(callbackQuery.data());
-        if (moderationStatus == ACCEPT) {
-            post.setStatus(PostStatusEnum.MODERATED);
-        } else if (moderationStatus == REJECT) {
-            post.setCancelDate(LocalDateTime.now());
-            post.setStatus(PostStatusEnum.CANCELED);
-        }
-        postService.save(post);
-
-        editMessageForAdmins(callbackQuery);
-        log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
-    }
-
-    @Deprecated
-    private void editMessageForAdmins(CallbackQuery callbackQuery) {
-        ChatAdmin admin = chatAdminsFactory.findById(callbackQuery.from().id());
-        if (chatAdminsFactory.murmurId == admin.getId()) {
-            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.murmurId, callbackQuery.message().messageId()));
-            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.nemnemId, callbackQuery.message().messageId() + 1));
-        } else if (chatAdminsFactory.nemnemId == admin.getId()) {
-            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.murmurId, callbackQuery.message().messageId() - 1));
-            client.execute(makeEditMessage(callbackQuery, chatAdminsFactory.nemnemId, callbackQuery.message().messageId()));
-        }
-    }
-
     /**
      * 1. Сообщение с Новостью редактируется для всех админов
      * 2. Убирается клавиатура
@@ -165,18 +142,37 @@ public class TelegramService {
      *
      * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
      */
-//    private void editMessageForAdmins(CallbackQuery callbackQuery) {
-//        int offset = 0;
-//        int position = -1;
-//        for(AdminEnum adminEnum : AdminEnum.values()) {
-//            client.execute(makeEditMessage(callbackQuery, adminEnum.id(),callbackQuery.message().messageId() + offset));
-//            if (callbackQuery.from().id().equals(adminEnum.id())) {
-//                position *= -1;
-//                offset = 0;
-//            }
-//            offset = (offset * position + 1) * position;
-//        }
-//    }
+    private void processPressKeyboardInline(CallbackQuery callbackQuery) {
+        Integer actorId = callbackQuery.from().id();
+        ModerateMessage msg = moderateMessageService.findByTlgrmIdAndAdminId(callbackQuery.message().messageId(), actorId);
+
+        Post post = msg.getPost();
+        ModerationStatusEnum moderationStatus = ModerationStatusEnum.from(callbackQuery.data());
+        if (moderationStatus == ACCEPT) {
+            msg.getPost().setStatus(PostStatusEnum.MODERATED);
+        } else if (moderationStatus == REJECT) {
+            msg.getPost().setCancelDate(LocalDateTime.now());
+            msg.getPost().setStatus(PostStatusEnum.CANCELED);
+        }
+        postService.save(post);
+
+        Long postId = post.getId();
+        List<ChatAdmin> chatAdmins = chatAdminsFactory.findAll(post.getCity());
+        List<ModerateMessage> editMessages = chatAdmins.stream()
+                .filter(a -> a.getId() != actorId)
+                .map(a -> moderateMessageService.findByPostIdAndAdminId(postId, a.getId()))
+                .collect(toList());
+
+        editMessages.add(msg);
+        editMessages.forEach(m -> {
+            client.execute(makeEditMessage(callbackQuery, m.getAdminId(), m.getTelegramMessageId()));
+            m.setProcessedStatus(moderationStatus);
+            m.setProcessedTime(LocalDateTime.now());
+            moderateMessageService.save(m);
+        });
+
+        log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
+    }
 
     private EditMessageText makeEditMessage(CallbackQuery callbackQuery, Integer chatId, Integer messageId) {
         log.info("Edit message {} for adminId = {}", messageId, chatId);
