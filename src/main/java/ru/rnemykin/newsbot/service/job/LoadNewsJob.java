@@ -1,5 +1,6 @@
 package ru.rnemykin.newsbot.service.job;
 
+import com.vk.api.sdk.objects.wall.WallpostAttachment;
 import com.vk.api.sdk.objects.wall.WallpostFull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +8,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.config.factory.PublicsFactory;
 import ru.rnemykin.newsbot.model.Post;
+import ru.rnemykin.newsbot.model.PostAttachment;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.PostService;
 import ru.rnemykin.newsbot.service.VkService;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Long.valueOf;
@@ -22,7 +25,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @Slf4j
 @Component
 public class LoadNewsJob {
-    private static final int POSTS_FETCH_SIZE = 10;
+    private static final int POSTS_FETCH_SIZE = 3;
 
     private final VkService vkService;
     private final PublicsFactory publicsFactory;
@@ -69,6 +72,17 @@ public class LoadNewsJob {
         post.setCommentsCount(p.getComments().getCount() != null ? p.getComments().getCount() : 0);
         post.setIsPinned(Integer.valueOf(1).equals(p.getIsPinned()));
         post.setStatus(PostStatusEnum.NEW);
+
+        post.setPostAttachments(mapToPostAttachments(p.getAttachments()));
+
         return post;
     }
+
+    private List<PostAttachment> mapToPostAttachments(List<WallpostAttachment> wallpostAttacheds) {
+        if (wallpostAttacheds == null) {
+            return null;
+        }
+        //todo[vmurzakov]: realize mapping
+    	return Collections.emptyList();
+	}
 }

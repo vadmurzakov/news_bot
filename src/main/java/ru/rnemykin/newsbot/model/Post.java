@@ -1,20 +1,15 @@
 package ru.rnemykin.newsbot.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Table
@@ -50,7 +45,9 @@ public class Post extends Model<Long> {
     private Boolean isPinned;
     private LocalDateTime postDate;
 
-//    private List<PostAttachment> postAttachments;  //  todo
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<PostAttachment> postAttachments = new ArrayList<>();
 
     public String getTextAsString() {
         return new String(text, Charset.forName("UTF-8"));
