@@ -1,23 +1,19 @@
 package ru.rnemykin.newsbot.service;
 
-import com.google.common.collect.Iterables;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.GetUpdatesResponse;
+import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
 import ru.rnemykin.newsbot.config.properties.ChatAdmin;
-import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
 import ru.rnemykin.newsbot.model.Keyboard;
 import ru.rnemykin.newsbot.model.ModerateMessage;
 import ru.rnemykin.newsbot.model.Post;
@@ -25,20 +21,18 @@ import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.ACCEPT;
 import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 
 @Slf4j
 @Service
 public class TelegramService {
-    private int offset = 0;
 
     private final MessageFormatter messageFormatter;
-    private final TelegramProperties telegramProperties;
     private final PostService postService;
     private final TelegramBot client;
     private final ChatAdminsFactory chatAdminsFactory;
@@ -46,93 +40,64 @@ public class TelegramService {
 
     @Autowired
     public TelegramService(MessageFormatter msgFormatter,
-                           TelegramProperties tgrmProperties,
                            PostService postService,
                            TelegramBot client,
                            ChatAdminsFactory chatAdminsFactory,
                            ModerateMessageService moderateMessageService) {
         this.messageFormatter = msgFormatter;
-        this.telegramProperties = tgrmProperties;
         this.postService = postService;
         this.client = client;
         this.chatAdminsFactory = chatAdminsFactory;
         this.moderateMessageService = moderateMessageService;
-
-        List<Update> updates = getUpdates(offset);
-        setOffset(updates);
     }
 
+    public boolean sendPhoto(Integer chatId, String urlPhoto, String caption) {
+		SendPhoto request = new SendPhoto(186736203, urlPhoto)
+				.caption(caption)
+				.replyMarkup(Keyboard.DEFAULT);
+		return client.execute(request).isOk();
+	}
 
-    @Scheduled(fixedDelayString = "${telegram.processNewsModeration.interval}")
-    private void processNewsModeration() {
-        List<Update> updates = getUpdates(offset);
-        for (Update update : updates) {
-            if (update.message() != null) {
-                Message message = update.message();
-                log.info(message.toString());
-            } else if (update.callbackQuery() != null) {
-                log.info(update.callbackQuery().toString());
-                processPressKeyboardInline(update.callbackQuery());
-            }
-        }
-    }
+	public boolean sendMessage(Post post, Integer chatId) {
+    	return sendMessage(post, chatId, null);
+	}
 
-    private List<Update> getUpdates(int offset) {
-        GetUpdates getUpdates = new GetUpdates().offset(offset + 1);
-        GetUpdatesResponse response = client.execute(getUpdates);
+    public boolean sendMessage(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
+    	assertNotNull(chatId);
 
-        if (!response.isOk()) {
-            log.error("Error get updates: " + response.toString());
-            return Collections.emptyList();
-        }
-
-        List<Update> updates = response.updates();
-        setOffset(updates);
-
-        return updates.isEmpty() ? Collections.emptyList() : updates;
-    }
-
-    private void setOffset(List<Update> updates) {
-        Update last = Iterables.getLast(updates, null);
-        this.offset = last == null ? 0 : last.updateId();
-    }
-
-    public void sendMessageToGroupAdmins(Post post) {
-        List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());
-        cityAdmins.forEach(adminEnum -> {
-            SendMessage request = new SendMessage(adminEnum.getId(), post.getTextAsString())
-                    .parseMode(ParseMode.HTML)
-                    .replyMarkup(Keyboard.DEFAULT)
-                    .disableWebPagePreview(false);
-
-            SendResponse sendResponse = client.execute(request);
-            if (sendResponse.isOk()) {
-                log.info("Send news in chat for {}, telegramMessageId={}", adminEnum.getName(), sendResponse.message().messageId());
-                ModerateMessage msg = ModerateMessage.builder()
-                        .postId(post.getId())
-                        .adminId(adminEnum.getId())
-                        .telegramMessageId(sendResponse.message().messageId())
-                        .build();
-
-                moderateMessageService.save(msg);
-            } else {
-                log.error("Error send message for: " + adminEnum.getName());
-            }
-        });
-    }
-
-    public boolean sendMessageToChannel(Post post) {
-        String chatId = telegramProperties.getCityChatId().get(post.getCity());
         SendMessage request = new SendMessage(chatId, messageFormatter.format(post))
                 .parseMode(ParseMode.HTML)
+				.replyMarkup(keyboard)
                 .disableWebPagePreview(false);
 
-        SendResponse execute = client.execute(request);
-        if (!execute.isOk()) {
-            log.error("error while send message to chat id={}, postId={}", chatId, post.getId());
-        }
-        return execute.isOk();
+        return execute(request, chatId, post);
     }
+
+	/**
+	 * Исполняет запросы всех типов
+	 * @param request new SendMessage, SendPhoto, SendVideo and etc
+	 * @param chatId ид чата
+	 * @param post новость
+	 * @return true - если все хорошо, false - в противном случае
+	 */
+	private <T extends BaseRequest, R extends SendResponse> boolean execute(BaseRequest<T, R> request, Integer chatId, Post post) {
+		SendResponse response = client.execute(request);
+		if (response.isOk()) {
+			log.info("Sending postId={} for {}", post.getId(), chatId); //todo[vmurzakov] заменить chatId на админа или название паблика
+
+			ModerateMessage msg = ModerateMessage.builder()
+					.postId(post.getId())
+					.adminId(chatId)
+					.telegramMessageId(response.message().messageId())
+					.build();
+
+			moderateMessageService.save(msg);
+			return true;
+		} else {
+			log.error("Error sending postId={} for {}", post.getId(), chatId); //todo[vmurzakov] заменить chatId на админа или название паблика
+			return false;
+		}
+	}
 
     /**
      * 1. Сообщение с Новостью редактируется для всех админов
@@ -142,7 +107,7 @@ public class TelegramService {
      *
      * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
      */
-    private void processPressKeyboardInline(CallbackQuery callbackQuery) {
+    public void processPressKeyboardInline(CallbackQuery callbackQuery) {
         Integer actorId = callbackQuery.from().id();
         ModerateMessage msg = moderateMessageService.findByTlgrmIdAndAdminId(callbackQuery.message().messageId(), actorId);
 
@@ -175,11 +140,11 @@ public class TelegramService {
     }
 
     private EditMessageText makeEditMessage(CallbackQuery callbackQuery, Integer chatId, Integer messageId) {
-        log.info("Edit message {} for adminId = {}", messageId, chatId);
+        log.info("Edit messageId={} for {}", messageId, chatAdminsFactory.findById(chatId).getName());
         return new EditMessageText(
                 chatId,
                 messageId,
-                "`" + callbackQuery.data() + " by " + callbackQuery.from().username() + "` \n" + callbackQuery.message().text()
+				messageFormatter.format(callbackQuery)
         ).parseMode(ParseMode.Markdown).disableWebPagePreview(true);
     }
 
