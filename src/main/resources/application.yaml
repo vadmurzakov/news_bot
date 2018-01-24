@@ -5,7 +5,6 @@ vk:
 
 telegram:
   token: <token>
-  processNewsModeration.interval: 1000
   cityChatId:
     BELGOROD: "<@bgdChatId>"
 
@@ -24,8 +23,10 @@ job:
     schedule: '0 * * * * *'
   publishNews:
     schedule: '0 * * * * *'
-  sendingNews:
+  sendingNewsOnModeration:
     schedule: '0 * * * * *'
+  telegramGettingUpdate:
+    interval: 1000
 
 
 news:
