@@ -49,4 +49,8 @@ public class PostService {
 	public Post findById(long id) {
 		return postRepository.findOne(id);
 	}
+
+	public Post findByPostId(long id) {
+		return postRepository.findByPostId(id);
+	}
 }

@@ -15,4 +15,6 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
     List<Post> findAllByStatusOrderById(PostStatusEnum status, Pageable pageRequest);
 
     Post findByPostIdAndPublicId(Long postId, Integer publicId);
+
+    Post findByPostId(Long postId);
 }
