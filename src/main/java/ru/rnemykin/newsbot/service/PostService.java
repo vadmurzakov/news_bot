@@ -7,6 +7,7 @@ import ru.rnemykin.newsbot.config.properties.Public;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.repository.PostRepository;
+import ru.rnemykin.newsbot.service.impl.PostAttachmentService;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
 import ru.rnemykin.newsbot.config.properties.ChatAdmin;
+import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
 import ru.rnemykin.newsbot.model.Keyboard;
 import ru.rnemykin.newsbot.model.ModerateMessage;
 import ru.rnemykin.newsbot.model.Post;
@@ -37,18 +38,21 @@ public class TelegramService {
     private final TelegramBot client;
     private final ChatAdminsFactory chatAdminsFactory;
     private final ModerateMessageService moderateMessageService;
+    private final TelegramProperties telegramProperties;
 
     @Autowired
     public TelegramService(MessageFormatter msgFormatter,
                            PostService postService,
                            TelegramBot client,
                            ChatAdminsFactory chatAdminsFactory,
-                           ModerateMessageService moderateMessageService) {
+                           ModerateMessageService moderateMessageService,
+                           TelegramProperties telegramProperties) {
         this.messageFormatter = msgFormatter;
         this.postService = postService;
         this.client = client;
         this.chatAdminsFactory = chatAdminsFactory;
         this.moderateMessageService = moderateMessageService;
+        this.telegramProperties = telegramProperties;
     }
 
 	/**
@@ -61,9 +65,18 @@ public class TelegramService {
 		return client.execute(request).isOk();
 	}
 
-	public boolean sendMessage(Post post, Integer chatId) {
-    	return sendMessage(post, chatId, null);
-	}
+    public boolean sendMessageToChannel(Post post) {
+        String chatId = telegramProperties.getCityChatId().get(post.getCity());
+        SendMessage request = new SendMessage(chatId, messageFormatter.format(post))
+                .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(false);
+
+        SendResponse execute = client.execute(request);
+        if (!execute.isOk()) {
+            log.error("error while send message to chat id={}, postId={}", chatId, post.getId());
+        }
+        return execute.isOk();
+    }
 
     public boolean sendMessage(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
     	assertNotNull(chatId);
