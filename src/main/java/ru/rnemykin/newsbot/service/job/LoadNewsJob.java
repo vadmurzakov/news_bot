@@ -10,7 +10,7 @@ import ru.rnemykin.newsbot.config.factory.PublicsFactory;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.PostAttachment;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
-import ru.rnemykin.newsbot.service.VkService;
+import ru.rnemykin.newsbot.service.client.VkService;
 import ru.rnemykin.newsbot.service.impl.PostService;
 
 import java.util.List;

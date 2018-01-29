@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.rnemykin.newsbot.config.factory.PublicsFactory;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
+import ru.rnemykin.newsbot.service.client.VkService;
 
 import java.util.List;
 

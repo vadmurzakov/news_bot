@@ -9,7 +9,7 @@ import ru.rnemykin.newsbot.config.properties.ChatAdmin;
 import ru.rnemykin.newsbot.model.Keyboard;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
-import ru.rnemykin.newsbot.service.TelegramService;
+import ru.rnemykin.newsbot.service.client.TelegramService;
 import ru.rnemykin.newsbot.service.impl.PostService;
 
 import java.time.LocalDateTime;

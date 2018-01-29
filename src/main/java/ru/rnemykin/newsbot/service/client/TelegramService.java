@@ -1,4 +1,4 @@
-package ru.rnemykin.newsbot.service;
+package ru.rnemykin.newsbot.service.client;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
@@ -20,6 +20,7 @@ import ru.rnemykin.newsbot.model.ModerateMessage;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
+import ru.rnemykin.newsbot.service.MessageFormatter;
 import ru.rnemykin.newsbot.service.impl.ModerateMessageService;
 import ru.rnemykin.newsbot.service.impl.PostService;
 

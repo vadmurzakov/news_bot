@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
-import ru.rnemykin.newsbot.service.TelegramService;
+import ru.rnemykin.newsbot.service.client.TelegramService;
 import ru.rnemykin.newsbot.service.impl.PostService;
 
 import java.time.LocalDateTime;
