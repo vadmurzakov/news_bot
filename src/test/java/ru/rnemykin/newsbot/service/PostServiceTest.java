@@ -8,6 +8,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
+import ru.rnemykin.newsbot.service.impl.PostService;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -25,7 +26,7 @@ public class PostServiceTest {
 
 	@Test
 	public void getAll() {
-		List<Post> posts = postService.getAll();
+		List<Post> posts = postService.findAll();
 		assertNotNull(posts);
 	}
 

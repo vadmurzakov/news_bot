@@ -21,6 +21,7 @@ import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.impl.ModerateMessageService;
+import ru.rnemykin.newsbot.service.impl.PostService;
 
 import java.time.LocalDateTime;
 import java.util.List;
