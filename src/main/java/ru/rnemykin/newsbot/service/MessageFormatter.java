@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 public class MessageFormatter {
     private static final String MSG_FORMAT = "{0}\n\n<i>{1}\nисточник: {2}</i>";
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-    private static final String CALLBACK_QUERY_FORMAT = "`{1} by {2}`\n{3}";
+    private static final String CALLBACK_QUERY_FORMAT = "`{0} by {1}`\n{2}";
 
     @Autowired
     private PublicsFactory publicsFactory;
@@ -25,7 +25,7 @@ public class MessageFormatter {
     }
 
     public String format(CallbackQuery callbackQuery) {
-        return MessageFormat.format(CALLBACK_QUERY_FORMAT, callbackQuery.data() ,callbackQuery.from().username() , callbackQuery.message().text());
+        return MessageFormat.format(CALLBACK_QUERY_FORMAT, callbackQuery.data(), callbackQuery.from().username(), callbackQuery.message().text());
     }
 
 }
