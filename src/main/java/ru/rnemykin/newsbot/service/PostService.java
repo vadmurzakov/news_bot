@@ -12,15 +12,20 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 @Service
 @Transactional
 public class PostService {
 	private final PostRepository postRepository;
+	private final PostAttachmentService attachmentService;
+
 
 	@Autowired
-	public PostService(PostRepository postRepository) {
+	public PostService(PostRepository postRepository, PostAttachmentService attachmentService) {
 		this.postRepository = postRepository;
-	}
+        this.attachmentService = attachmentService;
+    }
 
 	public List<Post> getAll() {
 		Iterable<Post> posts = postRepository.findAll();
@@ -31,7 +36,13 @@ public class PostService {
 	}
 
 	public void save(List<Post> posts) {
-		postRepository.save(posts);
+		Iterable<Post> saved = postRepository.save(posts);
+		saved.forEach(p -> {
+			if(!isEmpty(p.getPostAttachments())) {
+				p.getPostAttachments().forEach(a -> a.setPostId(p.getId()));
+                attachmentService.save(p.getPostAttachments());
+            }
+		});
 	}
 
 	public void save(Post post) {
