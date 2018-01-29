@@ -1,12 +1,22 @@
 package ru.rnemykin.newsbot.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,8 +57,8 @@ public class Post extends Model<Long> {
     private Boolean isPinned;
     private LocalDateTime postDate;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "postId", insertable = false, updatable = false)
     private List<PostAttachment> postAttachments = new ArrayList<>();
 
     public String getTextAsString() {
