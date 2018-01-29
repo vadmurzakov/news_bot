@@ -3,3 +3,6 @@ spring:
     username: sa
     password:
     url: jdbc:hsqldb:file:./db/city_news;AUTO_SERVER=TRUE
+
+  jpa:
+    show-sql: true
