@@ -79,4 +79,21 @@
             <column name="processed_status" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.ModerationStatusEnum"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="29.01.2018-1-1" author="vadmurzakov">
+        <createTable tableName="post_attachment">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="post_attachment_pk"/>
+            </column>
+            <column name="post_id" type="BIGINT" remarks="fk to post.id">
+                <constraints nullable="false" references="post(id)" foreignKeyName="post_attachment_post_id_fk"/>
+            </column>
+            <column name="photo_75_url" type="VARCHAR(200)"/>
+            <column name="photo_130_url" type="VARCHAR(200)"/>
+            <column name="photo_604_url" type="VARCHAR(200)"/>
+            <column name="photo_807_url" type="VARCHAR(200)"/>
+            <column name="photo_1280_url" type="VARCHAR(200)"/>
+            <column name="photo_2560_url" type="VARCHAR(200)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

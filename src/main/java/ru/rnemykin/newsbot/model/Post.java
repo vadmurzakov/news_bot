@@ -2,6 +2,7 @@ package ru.rnemykin.newsbot.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @Data
 @Table
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class Post extends Model<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
