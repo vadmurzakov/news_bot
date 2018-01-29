@@ -51,6 +51,13 @@ public class TelegramService {
         this.moderateMessageService = moderateMessageService;
     }
 
+	/**
+	 *
+	 * @param chatId   - пока как заглушка для теста, чтобы не спамить (это мой id)
+	 * @param urlPhoto - для отправки фото, используем getUrlPhoto из PostAttachment
+	 * @param caption  - описание картинки
+	 * @return true - если отправка прошла успешно, false - в противном случае
+	 */
     public boolean sendPhoto(Integer chatId, String urlPhoto, String caption) {
 		SendPhoto request = new SendPhoto(186736203, urlPhoto)
 				.caption(caption)
