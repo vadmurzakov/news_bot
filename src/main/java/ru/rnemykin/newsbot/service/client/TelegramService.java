@@ -5,8 +5,8 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
 import ru.rnemykin.newsbot.config.properties.ChatAdmin;
 import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
-import ru.rnemykin.newsbot.model.Keyboard;
 import ru.rnemykin.newsbot.model.ModerateMessage;
 import ru.rnemykin.newsbot.model.Post;
 import ru.rnemykin.newsbot.model.SendMessage;
+import ru.rnemykin.newsbot.model.SendPhoto;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.MessageFormatter;
@@ -61,12 +61,12 @@ public class TelegramService {
     }
 
 
-    public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption) {
+    public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption, @Nullable InlineKeyboardMarkup keyboard) {
 		assertNotNull(chatId, "chatId can not be null");
 
 		SendPhoto request = new SendPhoto(chatId, urlPhoto)
 				.caption(caption)
-				.replyMarkup(Keyboard.DEFAULT);
+				.replyMarkup(keyboard);
 
 		return execute(request);
 	}
@@ -83,13 +83,26 @@ public class TelegramService {
 	}
 
     public boolean sendMessageToChannel(Post post) {
+		SendResponse response;
         String chatId = telegramProperties.getCityChatId().get(post.getCity());
-        SendResponse response = sendMessage(chatId, messageFormatter.format(post), post.getId(), null);
+
+		if (postService.isPostAsPhoto(post)) {
+			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), null);
+		} else {
+			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), null);
+		}
+
         return response.isOk();
     }
 
     public boolean sendMessageOnModeration(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
-    	SendResponse response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
+    	SendResponse response;
+
+    	if (postService.isPostAsPhoto(post)) {
+			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), keyboard);
+		} else {
+			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
+		}
 
 		ModerateMessage msg = ModerateMessage.builder()
 				.postId(post.getId())
@@ -143,7 +156,7 @@ public class TelegramService {
 
         editMessages.add(msg);
         editMessages.forEach(m -> {
-            execute(makeEditMessage(callbackQuery, m.getAdminId(), m.getTelegramMessageId()));
+            execute(new DeleteMessage(m.getAdminId(), m.getTelegramMessageId()));
             m.setProcessedStatus(moderationStatus);
             m.setProcessedTime(LocalDateTime.now());
             moderateMessageService.save(m);
