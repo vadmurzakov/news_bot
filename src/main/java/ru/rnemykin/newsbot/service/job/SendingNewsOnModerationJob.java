@@ -36,7 +36,7 @@ public class SendingNewsOnModerationJob {
 
 			List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());
 			cityAdmins.forEach(adminEnum -> {
-				telegramService.sendMessage(post, adminEnum.getId(), Keyboard.DEFAULT);
+				telegramService.sendMessageOnModeration(post, adminEnum.getId(), Keyboard.DEFAULT);
 			});
 
 			post.setSentDate(LocalDateTime.now());

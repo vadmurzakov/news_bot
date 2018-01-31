@@ -12,8 +12,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.service.client.TelegramService;
 
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 @Slf4j
 @Component
@@ -39,9 +40,7 @@ public class TelegramGettingUpdateJob {
 		for (Update update : updates) {
 			if (update.message() != null) {
 				Message message = update.message();
-				log.info(message.toString());
 			} else if (update.callbackQuery() != null) {
-				log.info(update.callbackQuery().toString());
 				telegramService.processPressKeyboardInline(update.callbackQuery());
 			}
 		}
@@ -53,13 +52,13 @@ public class TelegramGettingUpdateJob {
 
 		if (!response.isOk()) {
 			log.error("Error get updates: " + response.toString());
-			return Collections.emptyList();
+			return emptyList();
 		}
 
 		List<Update> updates = response.updates();
 		setOffset(updates);
 
-		return updates.isEmpty() ? Collections.emptyList() : updates;
+		return updates.isEmpty() ? emptyList() : updates;
 	}
 
 	private void setOffset(List<Update> updates) {

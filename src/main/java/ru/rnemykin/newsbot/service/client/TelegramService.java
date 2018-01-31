@@ -6,8 +6,8 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendPhoto;
+import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,14 @@ import ru.rnemykin.newsbot.config.telegram.TelegramProperties;
 import ru.rnemykin.newsbot.model.Keyboard;
 import ru.rnemykin.newsbot.model.ModerateMessage;
 import ru.rnemykin.newsbot.model.Post;
+import ru.rnemykin.newsbot.model.SendMessage;
 import ru.rnemykin.newsbot.model.enums.ModerationStatusEnum;
 import ru.rnemykin.newsbot.model.enums.PostStatusEnum;
 import ru.rnemykin.newsbot.service.MessageFormatter;
 import ru.rnemykin.newsbot.service.impl.ModerateMessageService;
 import ru.rnemykin.newsbot.service.impl.PostService;
 
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,64 +60,56 @@ public class TelegramService {
         this.telegramProperties = telegramProperties;
     }
 
-	/**
-	 * @param chatId   - пока как заглушка для теста, чтобы не спамить (это мой id)
-	 */
-    public boolean sendPhoto(Integer chatId, String urlPhoto, String caption) {
-		SendPhoto request = new SendPhoto(186736203, urlPhoto)
+
+    public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption) {
+		assertNotNull(chatId, "chatId can not be null");
+
+		SendPhoto request = new SendPhoto(chatId, urlPhoto)
 				.caption(caption)
 				.replyMarkup(Keyboard.DEFAULT);
-		return client.execute(request).isOk();
+
+		return execute(request);
+	}
+
+	public SendResponse sendMessage(Object chatId, String text, @Nullable Long postId, @Nullable InlineKeyboardMarkup keyboard) {
+		assertNotNull(chatId, "chatId can not be null");
+
+		SendMessage request = new SendMessage(chatId, text)
+				.withPostId(postId)
+				.replyMarkup(keyboard)
+				.parseMode(ParseMode.HTML);
+
+		return execute(request);
 	}
 
     public boolean sendMessageToChannel(Post post) {
         String chatId = telegramProperties.getCityChatId().get(post.getCity());
-        SendMessage request = new SendMessage(chatId, messageFormatter.format(post))
-                .parseMode(ParseMode.HTML)
-                .disableWebPagePreview(false);
-
-        SendResponse execute = client.execute(request);
-        if (!execute.isOk()) {
-            log.error("error while send message to chat id={}, postId={}", chatId, post.getId());
-        }
-        return execute.isOk();
+        SendResponse response = sendMessage(chatId, messageFormatter.format(post), post.getId(), null);
+        return response.isOk();
     }
 
-    public boolean sendMessage(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
-    	assertNotNull(chatId);
+    public boolean sendMessageOnModeration(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
+    	SendResponse response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
 
-        SendMessage request = new SendMessage(chatId, messageFormatter.format(post))
-                .parseMode(ParseMode.HTML)
-				.replyMarkup(keyboard)
-                .disableWebPagePreview(false);
+		ModerateMessage msg = ModerateMessage.builder()
+				.postId(post.getId())
+				.adminId(chatId)
+				.telegramMessageId(response.message().messageId())
+				.build();
 
-        return execute(request, chatId, post);
+		moderateMessageService.save(msg);
+
+		return response.isOk();
     }
 
-	/**
-	 * Исполняет запросы всех типов
-	 * @param request new SendMessage, SendPhoto, SendVideo and etc
-	 * @param chatId ид чата
-	 * @param post новость
-	 * @return true - если все хорошо, false - в противном случае
-	 */
-	private <T extends BaseRequest, R extends SendResponse> boolean execute(BaseRequest<T, R> request, Integer chatId, Post post) {
-		SendResponse response = client.execute(request);
+	private <T extends BaseRequest, R extends BaseResponse> R execute(BaseRequest<T, R> request) {
+		R response = client.execute(request);
 		if (response.isOk()) {
-			log.info("Sending postId={} for {}", post.getId(), chatId); //todo[vmurzakov] заменить chatId на админа или название паблика
-
-			ModerateMessage msg = ModerateMessage.builder()
-					.postId(post.getId())
-					.adminId(chatId)
-					.telegramMessageId(response.message().messageId())
-					.build();
-
-			moderateMessageService.save(msg);
-			return true;
+			log.info("Successfully " + messageFormatter.format(request, response));
 		} else {
-			log.error("Error sending postId={} for {}", post.getId(), chatId); //todo[vmurzakov] заменить chatId на админа или название паблика
-			return false;
+			log.error("Error " + messageFormatter.format(request, response));
 		}
+		return response;
 	}
 
     /**
@@ -149,7 +143,7 @@ public class TelegramService {
 
         editMessages.add(msg);
         editMessages.forEach(m -> {
-            client.execute(makeEditMessage(callbackQuery, m.getAdminId(), m.getTelegramMessageId()));
+            execute(makeEditMessage(callbackQuery, m.getAdminId(), m.getTelegramMessageId()));
             m.setProcessedStatus(moderationStatus);
             m.setProcessedTime(LocalDateTime.now());
             moderateMessageService.save(m);
@@ -159,7 +153,6 @@ public class TelegramService {
     }
 
     private EditMessageText makeEditMessage(CallbackQuery callbackQuery, Integer chatId, Integer messageId) {
-        log.info("Edit messageId={} for {}", messageId, chatAdminsFactory.findById(chatId).getName());
         return new EditMessageText(
                 chatId,
                 messageId,
