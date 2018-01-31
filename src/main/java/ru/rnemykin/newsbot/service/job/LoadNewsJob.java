@@ -45,8 +45,8 @@ public class LoadNewsJob {
     public void loadNews() {
         publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
             List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
-            log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
             if (!isEmpty(vkWallPosts)) {
+				log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
                 List<Post> posts = vkWallPosts.stream()
                         .filter(vkPost -> postService.findVkPost(vkPost.getId(), newsPublic) == null)
                         .map(this::mapToPost)
