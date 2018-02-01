@@ -1,0 +1,22 @@
+<configuration>
+
+    <property scope="context" name="COLORIZER_COLORS" value="boldred@white,yellow@black,green@,blue@,cyan@" />
+    <conversionRule conversionWord="colorize" converterClass="org.tuxdude.logback.extensions.LogColorizer" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+
+        <encoder>
+            <pattern>[%date] %highlight([%level]) %colorize(%logger{35}) - %msg%n</pattern>
+        </encoder>
+
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <logger name="com.vk.api.sdk.httpclient.HttpTransportClient" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+</configuration>

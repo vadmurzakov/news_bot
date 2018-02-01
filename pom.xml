@@ -102,6 +102,22 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>4.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tuxdude.logback.extensions</groupId>
+			<artifactId>logback-colorizer</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
