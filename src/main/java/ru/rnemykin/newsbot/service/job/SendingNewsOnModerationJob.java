@@ -2,6 +2,7 @@ package ru.rnemykin.newsbot.service.job;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
@@ -18,6 +19,9 @@ import java.util.List;
 @Slf4j
 @Component
 public class SendingNewsOnModerationJob {
+	@Value("${job.sendingNewsOnModeration.count}")
+	private int POSTS_FETCH_SIZE;
+
 	private final PostService postService;
 	private final TelegramService telegramService;
 	private final ChatAdminsFactory chatAdminsFactory;
@@ -31,7 +35,7 @@ public class SendingNewsOnModerationJob {
 
 	@Scheduled(cron = "${job.sendingNewsOnModeration.schedule}")
 	public void sendingNewsOnModeration() {
-		List<Post> allForModeration = postService.findAllByStatus(PostStatusEnum.NEW, 3);
+		List<Post> allForModeration = postService.findAllByStatus(PostStatusEnum.NEW, POSTS_FETCH_SIZE);
 		allForModeration.forEach(post -> {
 
 			List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());

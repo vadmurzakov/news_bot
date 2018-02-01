@@ -4,6 +4,7 @@ import com.vk.api.sdk.objects.wall.WallpostAttachment;
 import com.vk.api.sdk.objects.wall.WallpostFull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.config.factory.PublicsFactory;
@@ -27,7 +28,8 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @Slf4j
 @Component
 public class LoadNewsJob {
-    private static final int POSTS_FETCH_SIZE = 3;
+	@Value("${job.loadNews.count}")
+    private int POSTS_FETCH_SIZE;
 
     private final VkService vkService;
     private final PublicsFactory publicsFactory;
