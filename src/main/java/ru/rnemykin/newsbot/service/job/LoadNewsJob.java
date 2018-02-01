@@ -46,7 +46,6 @@ public class LoadNewsJob {
         publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
             List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
             if (!isEmpty(vkWallPosts)) {
-				log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
                 List<Post> posts = vkWallPosts.stream()
                         .filter(vkPost -> postService.findVkPost(vkPost.getId(), newsPublic) == null)
                         .map(this::mapToPost)
@@ -55,7 +54,9 @@ public class LoadNewsJob {
                             p.setPublicId(newsPublic.getId());
                         })
                         .collect(toList());
-
+                if (!posts.isEmpty()) {
+                    log.info("retrieve new {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
+                }
                 postService.save(posts);
             }
         }));
@@ -63,13 +64,17 @@ public class LoadNewsJob {
 
     private Post mapToPost(WallpostFull p) {
         Post post = new Post();
+        int count = 0;
         post.setPostId(valueOf(p.getId()));
         post.setOwnerId(-1 * valueOf(p.getOwnerId()));
         post.setType(p.getPostType().getValue());
         post.setPostDate(ofEpochMilli(p.getDate() * 1000L).atZone(systemDefault()).toLocalDateTime());
         post.setText(p.getText().getBytes());
         post.setLikesCount(p.getLikes().getCount() != null ? p.getLikes().getCount() : 0);
-        post.setViewsCount(p.getViews().getCount() != null ? p.getViews().getCount() : 0);
+        if (p.getViews() != null && p.getViews().getCount() != null) {
+            count = p.getViews().getCount();
+        }
+        post.setViewsCount(count);
         post.setRepostsCount(p.getReposts().getCount() != null ? p.getReposts().getCount() : 0);
         post.setCommentsCount(p.getComments().getCount() != null ? p.getComments().getCount() : 0);
         post.setIsPinned(Integer.valueOf(1).equals(p.getIsPinned()));
