@@ -2,7 +2,6 @@ package ru.rnemykin.newsbot.service.job;
 
 import com.google.common.collect.Iterables;
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
@@ -34,16 +33,12 @@ public class TelegramGettingUpdateJob {
 		setOffset(updates);
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	@Scheduled(fixedDelayString = "${job.telegramGettingUpdate.interval}")
 	private void telegramGettingUpdate() {
-		List<Update> updates = getUpdates(offset);
-		for (Update update : updates) {
-			if (update.message() != null) {
-				Message message = update.message();
-			} else if (update.callbackQuery() != null) {
-				telegramService.processPressKeyboardInline(update.callbackQuery());
-			}
-		}
+		getUpdates(offset).stream()
+			.filter(update -> update.callbackQuery() != null)
+			.peek(update -> telegramService.processPressKeyboardInline(update.callbackQuery()));
 	}
 
 	private List<Update> getUpdates(int offset) {
