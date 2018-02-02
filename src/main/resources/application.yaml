@@ -25,7 +25,7 @@ job:
   publishNews:
     schedule: '0 * * * * *'
   sendingNewsOnModeration:
-    schedule: '0 * * * * *'
+    schedule: '30 0/1 * * * *'
     count: 3
   telegramGettingUpdate:
     interval: 1000
