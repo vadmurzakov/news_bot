@@ -34,7 +34,7 @@ public class TelegramGettingUpdateJob {
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	@Scheduled(fixedDelayString = "${job.telegramGettingUpdate.interval}")
+	@Scheduled(cron = "${job.telegramGettingUpdate.interval}")
 	private void telegramGettingUpdate() {
 		getUpdates(offset).forEach(update -> {
 			if (update.callbackQuery() != null) {
