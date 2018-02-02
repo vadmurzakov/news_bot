@@ -36,9 +36,11 @@ public class TelegramGettingUpdateJob {
 	@SuppressWarnings("ResultOfMethodCallIgnored")
 	@Scheduled(fixedDelayString = "${job.telegramGettingUpdate.interval}")
 	private void telegramGettingUpdate() {
-		getUpdates(offset).stream()
-			.filter(update -> update.callbackQuery() != null)
-			.peek(update -> telegramService.processPressKeyboardInline(update.callbackQuery()));
+		getUpdates(offset).forEach(update -> {
+			if (update.callbackQuery() != null) {
+				telegramService.processPressKeyboardInline(update.callbackQuery());
+			}
+		});
 	}
 
 	private List<Update> getUpdates(int offset) {
