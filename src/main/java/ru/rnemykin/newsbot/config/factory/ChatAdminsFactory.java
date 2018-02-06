@@ -26,10 +26,6 @@ public class ChatAdminsFactory {
         private Map<CityEnum, List<ChatAdmin>> chatAdmins;
     }
 
-//todo
-    public int nemnemId = 228618478;
-    public int murmurId = 186736203;
-
     @Autowired
     private ChatAdminsProperties chatAdminsProperties;
 

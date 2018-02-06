@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.response.BaseResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.config.factory.PublicsFactory;
 import ru.rnemykin.newsbot.config.properties.Public;
@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 
 @Component
+@AllArgsConstructor
 public class MessageFormatter {
     private static final String MSG_FORMAT = "{0}\n\n<i>{1}\nисточник: {2}</i>";
     private static final String MSG_WITH_PHOTO_FORMAT = "{0}\n{1}\n\n<i>{2}\nисточник: {3}</i>";
@@ -25,11 +26,6 @@ public class MessageFormatter {
     private final PublicsFactory publicsFactory;
     private final PostService postService;
 
-	@Autowired
-	public MessageFormatter(PublicsFactory publicsFactory, PostService postService) {
-		this.publicsFactory = publicsFactory;
-		this.postService = postService;
-	}
 
 	public String format(Post post) {
         Public newsPublic = publicsFactory.findById(post.getPublicId());

@@ -1,6 +1,6 @@
 package ru.rnemykin.newsbot.service.job;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.rnemykin.newsbot.model.Post;
@@ -12,15 +12,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
+@AllArgsConstructor
 public class PublishNewsJob {
     private final PostService postService;
     private final TelegramService telegramService;
-
-    @Autowired
-    public PublishNewsJob(PostService postService, TelegramService telegramService) {
-        this.postService = postService;
-        this.telegramService = telegramService;
-    }
 
 
     @Scheduled(cron = "${job.publishNews.schedule}")

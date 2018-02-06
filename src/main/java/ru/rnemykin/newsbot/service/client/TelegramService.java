@@ -8,8 +8,8 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -38,29 +38,14 @@ import static ru.rnemykin.newsbot.model.enums.ModerationStatusEnum.REJECT;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class TelegramService {
-
     private final MessageFormatter messageFormatter;
     private final PostService postService;
     private final TelegramBot client;
     private final ChatAdminsFactory chatAdminsFactory;
     private final ModerateMessageService moderateMessageService;
     private final TelegramProperties telegramProperties;
-
-    @Autowired
-    public TelegramService(MessageFormatter msgFormatter,
-                           PostService postService,
-                           TelegramBot client,
-                           ChatAdminsFactory chatAdminsFactory,
-                           ModerateMessageService moderateMessageService,
-                           TelegramProperties telegramProperties) {
-        this.messageFormatter = msgFormatter;
-        this.postService = postService;
-        this.client = client;
-        this.chatAdminsFactory = chatAdminsFactory;
-        this.moderateMessageService = moderateMessageService;
-        this.telegramProperties = telegramProperties;
-    }
 
 
     public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption, @Nullable InlineKeyboardMarkup keyboard) {
