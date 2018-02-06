@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.rnemykin.newsbot.model.enums.CityEnum;
 import ru.rnemykin.newsbot.model.enums.PublicEnum;
@@ -17,6 +18,7 @@ import static ru.rnemykin.newsbot.model.enums.PublicEnum.BEELIVE;
 import static ru.rnemykin.newsbot.model.enums.PublicEnum.BELGOROD1;
 import static ru.rnemykin.newsbot.model.enums.PublicEnum.BEL_INTER;
 
+@EnableRetry
 @EnableScheduling
 @SpringBootApplication
 public class NewsBotApplication {
