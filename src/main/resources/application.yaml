@@ -7,6 +7,9 @@ telegram:
   token: <token>
   cityChatId:
     BELGOROD: "<@bgdChatId>"
+  retry:
+    delay: 3000
+    attemptsCount: 3
 
 
 spring:

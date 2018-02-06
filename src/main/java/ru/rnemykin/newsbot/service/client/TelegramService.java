@@ -6,11 +6,12 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.DeleteMessage;
-import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import ru.rnemykin.newsbot.config.factory.ChatAdminsFactory;
 import ru.rnemykin.newsbot.config.properties.ChatAdmin;
@@ -26,6 +27,7 @@ import ru.rnemykin.newsbot.service.impl.ModerateMessageService;
 import ru.rnemykin.newsbot.service.impl.PostService;
 
 import javax.annotation.Nullable;
+import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -133,6 +135,8 @@ public class TelegramService {
      *
      * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
      */
+    @Retryable(value = SocketTimeoutException.class, maxAttemptsExpression = "${telegram.retry.attemptsCount}",
+            backoff = @Backoff(delayExpression = "${telegram.retry.delay}"))
     public void processPressKeyboardInline(CallbackQuery callbackQuery) {
         Integer actorId = callbackQuery.from().id();
         ModerateMessage msg = moderateMessageService.findByTlgrmIdAndAdminId(callbackQuery.message().messageId(), actorId);
@@ -163,14 +167,6 @@ public class TelegramService {
         });
 
         log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
-    }
-
-    private EditMessageText makeEditMessage(CallbackQuery callbackQuery, Integer chatId, Integer messageId) {
-        return new EditMessageText(
-                chatId,
-                messageId,
-				messageFormatter.format(callbackQuery)
-        ).parseMode(ParseMode.Markdown).disableWebPagePreview(true);
     }
 
 }
