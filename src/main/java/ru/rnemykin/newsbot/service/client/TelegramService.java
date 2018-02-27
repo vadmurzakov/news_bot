@@ -145,7 +145,7 @@ public class TelegramService {
 
         editMessages.add(msg);
         editMessages.forEach(m -> {
-            execute(new DeleteMessage(m.getAdminId(), m.getTelegramMessageId()));
+            deleteMessage(m.getAdminId(), m.getTelegramMessageId());
             m.setProcessedStatus(moderationStatus);
             m.setProcessedTime(LocalDateTime.now());
             moderateMessageService.save(m);
@@ -153,5 +153,9 @@ public class TelegramService {
 
         log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
     }
+
+    public void deleteMessage(int chatId, int messageId) {
+    	execute(new DeleteMessage(chatId, messageId));
+	}
 
 }

@@ -32,6 +32,8 @@ job:
     count: 3
   telegramGettingUpdate:
     interval: '0/1 * * * * *'
+  autoDeclineNews:
+    interval: '* 0 * * * *'
 
 
 news:
