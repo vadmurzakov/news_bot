@@ -30,6 +30,8 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class LoadNewsJob {
 	@Value("${job.loadNews.count}")
     private int POSTS_FETCH_SIZE;
+    @Value("${telegram.message.maxSize}")
+    private int MESSAGE_MAX_SIZE;
 
     private final VkService vkService;
     private final PublicsFactory publicsFactory;
@@ -51,7 +53,9 @@ public class LoadNewsJob {
                 log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
 
                 List<Post> posts = vkWallPosts.stream()
-                        .filter(vkPost -> postService.findVkPost(vkPost.getId(), newsPublic) == null)
+                        .filter(vkPost ->
+                            postService.findVkPost(vkPost.getId(), newsPublic) == null && vkPost.getText().length() < MESSAGE_MAX_SIZE
+                        )
                         .map(this::mapToPost)
                         .peek(p -> {
                             p.setCity(key);

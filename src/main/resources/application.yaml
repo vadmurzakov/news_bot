@@ -10,6 +10,8 @@ telegram:
   retry:
     delay: 3000
     attemptsCount: 3
+  message:
+    maxSize: 4095
 
 
 spring:
