@@ -10,13 +10,13 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="post_pk"/>
             </column>
-            <column name="city" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.CityEnum">
+            <column name="city" type="VARCHAR(100)" remarks="see ru.newsbot.model.enums.CityEnum">
                 <constraints nullable="false"/>
             </column>
-            <column name="public_id" type="INT" remarks="see ru.rnemykin.newsbot.model.enums.PublicEnum">
+            <column name="public_id" type="INT" remarks="see ru.newsbot.model.enums.PublicEnum">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.PostStatusEnum">
+            <column name="status" type="VARCHAR(100)" remarks="see ru.newsbot.model.enums.PostStatusEnum">
                 <constraints nullable="false"/>
             </column>
             <column name="create_date" type="DATETIME" remarks="Дата создания записи в БД">
@@ -76,7 +76,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="processed_time" type="DATETIME"/>
-            <column name="processed_status" type="VARCHAR(100)" remarks="see ru.rnemykin.newsbot.model.enums.ModerationStatusEnum"/>
+            <column name="processed_status" type="VARCHAR(100)" remarks="see ru.newsbot.model.enums.ModerationStatusEnum"/>
         </createTable>
     </changeSet>
 

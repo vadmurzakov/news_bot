@@ -18,7 +18,7 @@ spring:
   jpa:
     generate-ddl: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop
 
 liquibase:
   changeLog: classpath:liquibase/changelog-master.xml
@@ -56,6 +56,3 @@ news:
       -
         id: 186736203
         name: VADMURZAKOV
-      -
-        id: 228618478
-        name: RNEMYKIN
