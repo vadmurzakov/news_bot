@@ -44,7 +44,6 @@ public class LoadNewsJob {
         this.postService = postService;
     }
 
-
     @Scheduled(cron = "${job.loadNews.schedule}")
     public void loadNews() {
         publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {

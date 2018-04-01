@@ -25,17 +25,17 @@ liquibase:
 
 job:
   loadNews:
-    schedule: '0 * * * * *'
+    schedule: '0 0-59/2 * * * *'  #четные минуты
     count: 3
   publishNews:
-    schedule: '0 * * * * *'
+    schedule: '30 0-59/2 * * * *' #четные минуты + 30секунд
   sendingNewsOnModeration:
-    schedule: '30 0/1 * * * *'
+    schedule: '0 1-59/2 * * * *'  #нечетные минуты
     count: 3
   telegramGettingUpdate:
-    interval: '0/1 * * * * *'
+    interval: '*/2 * * * * *'     #каждые 2 секунды
   autoDeclineNews:
-    interval: '* 0 * * * *'
+    interval: '* 0 * * * *'       #каждый час
 
 
 news:
