@@ -2,6 +2,7 @@ package ru.newsbot.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.codec.CharEncoding;
 import ru.newsbot.model.enums.CityEnum;
 import ru.newsbot.model.enums.PostStatusEnum;
 
@@ -51,9 +52,8 @@ public class Post extends Model<Long> {
 	private List<PostAttachment> postAttachments = new ArrayList<>();
 
 	public String getTextAsString() {
-		return new String(text, Charset.forName("UTF-8"));
+		return new String(text, Charset.forName(CharEncoding.UTF_8));
 	}
-
 
 	@PrePersist
 	void onInsert() {
