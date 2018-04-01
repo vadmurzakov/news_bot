@@ -20,9 +20,10 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class VkServiceTest {
-
-	@Autowired private VkService service;
-	@Autowired private PublicsFactory publicsFactory;
+	@Autowired
+	private VkService service;
+	@Autowired
+	private PublicsFactory publicsFactory;
 
 	@Test
 	public void getGroup() {

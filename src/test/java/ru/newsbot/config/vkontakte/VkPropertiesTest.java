@@ -6,30 +6,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class VkPropertiesTest {
-
-	@Autowired private VkProperties properties;
+	@Autowired
+	private VkProperties properties;
 
 	@Test
 	public void getAppId() {
 		assertNotNull(properties.getAppId());
-		assertFalse(properties.getAppId().equals(0)); //is default value in application.yml
+		assertNotEquals(0, (int) properties.getAppId()); //is default value in application.yml
 	}
 
 	@Test
 	public void getSecretKey() {
 		assertNotNull(properties.getSecretKey());
-		assertFalse(properties.getSecretKey().equals("key")); //is default value in application.yml
+		assertNotEquals("key", properties.getSecretKey()); //is default value in application.yml
 	}
 
 	@Test
 	public void getServiceKeyAccess() {
 		assertNotNull(properties.getServiceKeyAccess());
-		assertFalse(properties.getServiceKeyAccess().equals("accessKey")); //is default value in application.yml
+		assertNotEquals("accessKey", properties.getServiceKeyAccess()); //is default value in application.yml
 	}
 }

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 @Rollback
 public class PostServiceTest {
-
 	@Autowired
 	private PostService postService;
 

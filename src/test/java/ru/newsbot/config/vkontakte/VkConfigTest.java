@@ -12,18 +12,11 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class VkConfigTest {
-
-	@Autowired private VkConfig configuration;
+	@Autowired
+	private VkApiClient client;
 
 	@Test
 	public void vkApiClient() {
-		VkApiClient vk = configuration.getClient();
-		assertNotNull(vk);
-	}
-
-	@Test
-	public void getVkProperties() {
-		VkProperties properties = configuration.getProperties();
-		assertNotNull(properties);
+		assertNotNull(client);
 	}
 }
