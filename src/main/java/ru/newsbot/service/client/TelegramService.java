@@ -3,10 +3,13 @@ package ru.newsbot.service.client;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.InputMediaPhoto;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.DeleteMessage;
+import com.pengrad.telegrambot.request.SendMediaGroup;
 import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.MessagesResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +18,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import ru.newsbot.config.factory.ChatAdminsFactory;
 import ru.newsbot.config.properties.ChatAdmin;
-import ru.newsbot.config.telegram.TelegramProperties;
 import ru.newsbot.model.ModerateMessage;
 import ru.newsbot.model.Post;
 import ru.newsbot.model.SendMessage;
@@ -45,11 +47,8 @@ public class TelegramService {
 	private final TelegramBot client;
 	private final ChatAdminsFactory chatAdminsFactory;
 	private final ModerateMessageService moderateMessageService;
-	private final TelegramProperties telegramProperties;
 
 	public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption, @Nullable InlineKeyboardMarkup keyboard) {
-		assertNotNull(chatId, "chatId can not be null");
-
 		SendPhoto request = new SendPhoto(chatId, urlPhoto)
 				.caption(caption)
 				.replyMarkup(keyboard);
@@ -58,8 +57,6 @@ public class TelegramService {
 	}
 
 	public SendResponse sendMessage(Object chatId, String text, @Nullable Long postId, @Nullable InlineKeyboardMarkup keyboard) {
-		assertNotNull(chatId, "chatId can not be null");
-
 		SendMessage request = new SendMessage(chatId, text)
 				.withPostId(postId)
 				.replyMarkup(keyboard)
@@ -78,27 +75,15 @@ public class TelegramService {
 			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), null);
 		}
 
-		return response.isOk();
-	}
-
-	public boolean sendMessageOnModeration(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
+	public SendResponse sendMessage(Post post, Object chatId, InlineKeyboardMarkup keyboard) {
+		assertNotNull(chatId, "chatId can not be null");
 		SendResponse response;
-
 		if (postService.isPostAsPhoto(post)) {
 			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), keyboard);
 		} else {
 			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
 		}
-
-		ModerateMessage msg = ModerateMessage.builder()
-				.postId(post.getId())
-				.adminId(chatId)
-				.telegramMessageId(response.message().messageId())
-				.build();
-
-		moderateMessageService.save(msg);
-
-		return response.isOk();
+		return response;
 	}
 
 	private <T extends BaseRequest, R extends BaseResponse> R execute(BaseRequest<T, R> request) {
@@ -112,10 +97,7 @@ public class TelegramService {
 	}
 
 	/**
-	 * 1. Сообщение с Новостью редактируется для всех админов
-	 * 2. Убирается клавиатура
-	 * 3. Вначале сообщения прописывается статус, который был присвоен Новости
-	 * Если один из админов промодерировал Новость, другие админы это увидят и не смогут промодерировать Новость
+	 * Модерирование новостей в агрегаторе (при модерации, новость так же удаляется у других админов)
 	 *
 	 * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
 	 */

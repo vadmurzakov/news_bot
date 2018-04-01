@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import ru.newsbot.config.telegram.TelegramProperties;
 import ru.newsbot.model.Post;
 import ru.newsbot.model.enums.PostStatusEnum;
 import ru.newsbot.service.client.TelegramService;
@@ -19,13 +20,15 @@ public class PublishNewsJob {
 	private boolean isEnable;
 	private final PostService postService;
 	private final TelegramService telegramService;
+	private final TelegramProperties telegramProperties;
 
 	@Scheduled(cron = "${job.publishNews.schedule}")
 	public void publishNews() {
 		if (isEnable) {
 			List<Post> posts = postService.findAllByStatus(PostStatusEnum.MODERATED, 100);
 			posts.forEach(p -> {
-				if (telegramService.sendMessageToChannel(p)) {
+				String chatId = telegramProperties.getChatId().get(p.getCity());
+				if (telegramService.sendMessage(p, chatId, null).isOk()) {
 					p.setPublishDate(LocalDateTime.now());
 					p.setStatus(PostStatusEnum.PUBLISHED);
 				} else {

@@ -44,8 +44,15 @@ public class MessageFormatter {
 	}
 
 	public <T extends BaseRequest, R extends BaseResponse> String format(BaseRequest<T, R> request, R response) {
+		String chatName;
 		String chatId = request.getParameters().get("chat_id").toString().trim();
-		String log = MessageFormat.format(BASE_REQUEST_FORMAT, request.getMethod(), chatAdminsFactory.findById(Integer.valueOf(chatId)).getName().toLowerCase());
+		//чаты могут быть как по ид, так и по имени, например: 12588544 или @belgorodinfo
+		try {
+			chatName = chatAdminsFactory.findById(Integer.valueOf(chatId)).getName().toLowerCase();
+		} catch (NumberFormatException exp) {
+			chatName = chatId;
+		}
+		String log = MessageFormat.format(BASE_REQUEST_FORMAT, request.getMethod(), chatName);
 		if (request.getParameters().get("post_id") != null)
 			log += " , postId = " + request.getParameters().get("post_id");
 		if (request.getParameters().get("message_id") != null)
