@@ -3,7 +3,6 @@ package ru.newsbot.service.client;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.ServiceActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.groups.GroupFull;
@@ -16,7 +15,6 @@ import ru.newsbot.config.properties.Public;
 import ru.newsbot.config.vkontakte.VkConfig;
 import ru.newsbot.model.enums.PublicEnum;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -26,22 +24,11 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 public class VkService {
 	private final VkConfig configuration;
-	private ServiceActor actor;
-	private VkApiClient vk;
-
-	@PostConstruct
-	private void init() {
-		Integer appId = configuration.getProperties().getAppId();
-		String secretKey = configuration.getProperties().getSecretKey();
-		String serviceKeyAccess = configuration.getProperties().getServiceKeyAccess();
-
-		actor = new ServiceActor(appId, secretKey, serviceKeyAccess);
-		vk = configuration.getClient();
-	}
+	private final VkApiClient client;
 
 	public GroupFull getGroup(Integer id) {
 		try {
-			List<GroupFull> groupFulls = vk.groups().getById(actor).groupId(id.toString()).execute();
+			List<GroupFull> groupFulls = client.groups().getById(configuration.getActor()).groupId(id.toString()).execute();
 			return Iterables.getFirst(groupFulls, null);
 		} catch (ApiException | ClientException e) {
 			log.error("Error get group {}, {}", PublicEnum.from(id), e.getMessage());
@@ -52,7 +39,7 @@ public class VkService {
 	public List<WallpostFull> getWallPosts(Public group, int postsCount) {
 		try {
 			return Lists.reverse(
-					vk.wall().get(actor)
+					client.wall().get(configuration.getActor())
 							.ownerId(-group.getId())
 							.filter(WallGetFilter.OWNER)
 							.count(postsCount)
