@@ -1,6 +1,6 @@
 package ru.newsbot.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.newsbot.config.properties.Public;
@@ -15,25 +15,21 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class PostService extends AbstractEntityService<Long, Post, PostRepository> {
 	private final PostAttachmentService attachmentService;
 
-	@Autowired
-	public PostService(PostAttachmentService attachmentService) {
-        this.attachmentService = attachmentService;
-    }
-
 	@Override
-    public List<Post> save(List<Post> posts) {
-        List<Post> saved = super.save(posts);
-        saved.forEach(p -> {
-			if(!isEmpty(p.getPostAttachments())) {
+	public List<Post> save(List<Post> posts) {
+		List<Post> saved = super.save(posts);
+		saved.forEach(p -> {
+			if (!isEmpty(p.getPostAttachments())) {
 				p.getPostAttachments().forEach(a -> a.setPostId(p.getId()));
-                attachmentService.save(p.getPostAttachments());
-            }
+				attachmentService.save(p.getPostAttachments());
+			}
 		});
 
-        return saved;
+		return saved;
 	}
 
 	public List<Post> findAllByStatus(PostStatusEnum status, int recordsCount) {
@@ -46,6 +42,7 @@ public class PostService extends AbstractEntityService<Long, Post, PostRepositor
 
 	/**
 	 * Можем ли мы отправить новость вместе с картинкой (на данный момент смотрим посты только с одной картинкой)
+	 *
 	 * @param post - новость, если в новости есть url на внешний источник, предпочтение отдаему ему, а не картинке
 	 */
 	public boolean isPostWithPhoto(Post post) {
@@ -55,8 +52,8 @@ public class PostService extends AbstractEntityService<Long, Post, PostRepositor
 
 	/**
 	 * Можно ли отправить новость как картинку
-	 *  - максимальная длина описания фотографии 200 символов
-	 *  - пока обрабатываем те новости, где одна картинка
+	 * - максимальная длина описания фотографии 200 символов
+	 * - пока обрабатываем те новости, где одна картинка
 	 */
 	public boolean isPostAsPhoto(Post post) {
 		return isPostWithPhoto(post) && post.getTextAsString().length() <= 200;

@@ -1,10 +1,10 @@
 package ru.newsbot.model.enums;
 
 public enum PostStatusEnum {
-    NEW,
-    CANCELED,
-    MODERATION,
-    MODERATED,
-    PUBLISHED,
-    ERROR
+	NEW,
+	CANCELED,
+	MODERATION,
+	MODERATED,
+	PUBLISHED,
+	ERROR
 }

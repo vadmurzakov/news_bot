@@ -17,27 +17,26 @@ import java.util.Map;
 @EnableConfigurationProperties(PublicsFactory.PublicsProperties.class)
 public class PublicsFactory {
 
-    @Getter
-    @Setter
-    @ConfigurationProperties("news")
-    class PublicsProperties {
-        private Map<CityEnum, List<Public>> publics;
-    }
+	@Getter
+	@Setter
+	@ConfigurationProperties("news")
+	class PublicsProperties {
+		private Map<CityEnum, List<Public>> publics;
+	}
 
-    @Autowired
-    private PublicsProperties publicsProperties;
+	@Autowired
+	private PublicsProperties publicsProperties;
 
+	public Public findById(int publicId) {
+		return publicsProperties.publics.values().stream()
+				.flatMap(List::stream)
+				.filter(p -> publicId == p.getId())
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Not found public with id = " + publicId));
+	}
 
-    public Public findById(int publicId) {
-        return publicsProperties.publics.values().stream()
-                .flatMap(List::stream)
-                .filter(p -> publicId == p.getId())
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Not found public with id = " + publicId));
-    }
-
-    public Map<CityEnum, List<Public>> findAll() {
-        return Collections.unmodifiableMap(publicsProperties.publics);
-    }
+	public Map<CityEnum, List<Public>> findAll() {
+		return Collections.unmodifiableMap(publicsProperties.publics);
+	}
 
 }

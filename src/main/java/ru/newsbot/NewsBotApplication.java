@@ -14,9 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableMap;
-import static ru.newsbot.model.enums.PublicEnum.BEELIVE;
-import static ru.newsbot.model.enums.PublicEnum.BELGOROD1;
-import static ru.newsbot.model.enums.PublicEnum.BEL_INTER;
+import static ru.newsbot.model.enums.PublicEnum.*;
 
 @EnableRetry
 @EnableScheduling

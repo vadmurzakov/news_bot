@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Public {
-    private int id;
-    private String url;
+	private int id;
+	private String url;
 }

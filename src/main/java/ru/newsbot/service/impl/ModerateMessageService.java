@@ -10,11 +10,11 @@ import javax.transaction.Transactional;
 @Transactional
 public class ModerateMessageService extends AbstractEntityService<Long, ModerateMessage, ModerateMessageRepository> {
 
-    public ModerateMessage findByTlgrmIdAndAdminId(Integer telegramMessageId, Integer adminId) {
-        return entityRepository.findByTelegramMessageIdAndAdminId(telegramMessageId, adminId);
-    }
+	public ModerateMessage findByTlgrmIdAndAdminId(Integer telegramMessageId, Integer adminId) {
+		return entityRepository.findByTelegramMessageIdAndAdminId(telegramMessageId, adminId);
+	}
 
-    public ModerateMessage findByPostIdAndAdminId(Long postId, Integer adminId) {
-        return entityRepository.findByPostIdAndAdminId(postId, adminId);
-    }
+	public ModerateMessage findByPostIdAndAdminId(Long postId, Integer adminId) {
+		return entityRepository.findByPostIdAndAdminId(postId, adminId);
+	}
 }

@@ -7,13 +7,13 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface EntityService<ID extends Serializable, T extends Model<ID>, R extends CrudRepository<T, ID>> {
-    T findById(ID entityId);
+	T findById(ID entityId);
 
-    List<T> findAll();
+	List<T> findAll();
 
-    T save(T entity);
+	T save(T entity);
 
-    List<T> save(List<T> entities);
+	List<T> save(List<T> entities);
 
-    void delete(T entity);
+	void delete(T entity);
 }

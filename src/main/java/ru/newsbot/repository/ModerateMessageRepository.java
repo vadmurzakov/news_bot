@@ -6,7 +6,7 @@ import ru.newsbot.model.ModerateMessage;
 
 @Repository
 public interface ModerateMessageRepository extends CrudRepository<ModerateMessage, Long> {
-    ModerateMessage findByTelegramMessageIdAndAdminId(Integer telegramMessageId, Integer adminId);
+	ModerateMessage findByTelegramMessageIdAndAdminId(Integer telegramMessageId, Integer adminId);
 
-    ModerateMessage findByPostIdAndAdminId(Long postId, Integer adminId);
+	ModerateMessage findByPostIdAndAdminId(Long postId, Integer adminId);
 }

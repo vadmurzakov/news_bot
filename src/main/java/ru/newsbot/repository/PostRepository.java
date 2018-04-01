@@ -10,11 +10,11 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
-    List<Post> findAllByOwnerIdOrderByIdDesc(long ownerId, Pageable pageable);
+	List<Post> findAllByOwnerIdOrderByIdDesc(long ownerId, Pageable pageable);
 
-    List<Post> findAllByStatusOrderById(PostStatusEnum status, Pageable pageRequest);
+	List<Post> findAllByStatusOrderById(PostStatusEnum status, Pageable pageRequest);
 
-    Post findByPostIdAndPublicId(Long postId, Integer publicId);
+	Post findByPostIdAndPublicId(Long postId, Integer publicId);
 
-    Post findByPostId(Long postId);
+	Post findByPostId(Long postId);
 }

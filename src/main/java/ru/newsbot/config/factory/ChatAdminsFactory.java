@@ -19,27 +19,26 @@ import static java.util.Collections.unmodifiableList;
 @EnableConfigurationProperties(ChatAdminsFactory.ChatAdminsProperties.class)
 public class ChatAdminsFactory {
 
-    @Getter
-    @Setter
-    @ConfigurationProperties("news")
-    class ChatAdminsProperties {
-        private Map<CityEnum, List<ChatAdmin>> chatAdmins;
-    }
+	@Getter
+	@Setter
+	@ConfigurationProperties("news")
+	class ChatAdminsProperties {
+		private Map<CityEnum, List<ChatAdmin>> chatAdmins;
+	}
 
-    @Autowired
-    private ChatAdminsProperties chatAdminsProperties;
+	@Autowired
+	private ChatAdminsProperties chatAdminsProperties;
 
+	public ChatAdmin findById(int adminId) {
+		return chatAdminsProperties.chatAdmins.values().stream()
+				.flatMap(List::stream)
+				.filter(a -> adminId == a.getId())
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Not found chatAdmin with id " + adminId));
+	}
 
-    public ChatAdmin findById(int adminId) {
-        return chatAdminsProperties.chatAdmins.values().stream()
-                .flatMap(List::stream)
-                .filter(a -> adminId == a.getId())
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Not found chatAdmin with id " + adminId));
-    }
-
-    public List<ChatAdmin> findAll(CityEnum city) {
-        return unmodifiableList(chatAdminsProperties.chatAdmins.getOrDefault(city, emptyList()));
-    }
+	public List<ChatAdmin> findAll(CityEnum city) {
+		return unmodifiableList(chatAdminsProperties.chatAdmins.getOrDefault(city, emptyList()));
+	}
 
 }

@@ -9,8 +9,8 @@ import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.groups.GroupFull;
 import com.vk.api.sdk.objects.wall.WallpostFull;
 import com.vk.api.sdk.queries.wall.WallGetFilter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.newsbot.config.properties.Public;
 import ru.newsbot.config.vkontakte.VkConfig;
@@ -23,10 +23,9 @@ import static java.util.Collections.emptyList;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class VkService {
-	@Autowired
-    private VkConfig configuration;
-
+	private final VkConfig configuration;
 	private ServiceActor actor;
 	private VkApiClient vk;
 

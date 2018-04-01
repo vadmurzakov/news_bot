@@ -40,14 +40,14 @@ import static ru.newsbot.model.enums.ModerationStatusEnum.REJECT;
 @Service
 @AllArgsConstructor
 public class TelegramService {
-    private final MessageFormatter messageFormatter;
-    private final PostService postService;
-    private final TelegramBot client;
-    private final ChatAdminsFactory chatAdminsFactory;
-    private final ModerateMessageService moderateMessageService;
-    private final TelegramProperties telegramProperties;
+	private final MessageFormatter messageFormatter;
+	private final PostService postService;
+	private final TelegramBot client;
+	private final ChatAdminsFactory chatAdminsFactory;
+	private final ModerateMessageService moderateMessageService;
+	private final TelegramProperties telegramProperties;
 
-    public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption, @Nullable InlineKeyboardMarkup keyboard) {
+	public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption, @Nullable InlineKeyboardMarkup keyboard) {
 		assertNotNull(chatId, "chatId can not be null");
 
 		SendPhoto request = new SendPhoto(chatId, urlPhoto)
@@ -68,9 +68,9 @@ public class TelegramService {
 		return execute(request);
 	}
 
-    public boolean sendMessageToChannel(Post post) {
+	public boolean sendMessageToChannel(Post post) {
 		SendResponse response;
-        String chatId = telegramProperties.getChatId().get(post.getCity());
+		String chatId = telegramProperties.getChatId().get(post.getCity());
 
 		if (postService.isPostAsPhoto(post)) {
 			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), null);
@@ -78,13 +78,13 @@ public class TelegramService {
 			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), null);
 		}
 
-        return response.isOk();
-    }
+		return response.isOk();
+	}
 
-    public boolean sendMessageOnModeration(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
-    	SendResponse response;
+	public boolean sendMessageOnModeration(Post post, Integer chatId, InlineKeyboardMarkup keyboard) {
+		SendResponse response;
 
-    	if (postService.isPostAsPhoto(post)) {
+		if (postService.isPostAsPhoto(post)) {
 			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), keyboard);
 		} else {
 			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
@@ -99,7 +99,7 @@ public class TelegramService {
 		moderateMessageService.save(msg);
 
 		return response.isOk();
-    }
+	}
 
 	private <T extends BaseRequest, R extends BaseResponse> R execute(BaseRequest<T, R> request) {
 		R response = client.execute(request);
@@ -111,50 +111,50 @@ public class TelegramService {
 		return response;
 	}
 
-    /**
-     * 1. Сообщение с Новостью редактируется для всех админов
-     * 2. Убирается клавиатура
-     * 3. Вначале сообщения прописывается статус, который был присвоен Новости
-     * Если один из админов промодерировал Новость, другие админы это увидят и не смогут промодерировать Новость
-     *
-     * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
-     */
-    @Retryable(value = SocketTimeoutException.class, maxAttemptsExpression = "${telegram.retry.attemptsCount}",
-            backoff = @Backoff(delayExpression = "${telegram.retry.delay}"))
-    public void processPressKeyboardInline(CallbackQuery callbackQuery) {
-        Integer actorId = callbackQuery.from().id();
-        ModerateMessage msg = moderateMessageService.findByTlgrmIdAndAdminId(callbackQuery.message().messageId(), actorId);
+	/**
+	 * 1. Сообщение с Новостью редактируется для всех админов
+	 * 2. Убирается клавиатура
+	 * 3. Вначале сообщения прописывается статус, который был присвоен Новости
+	 * Если один из админов промодерировал Новость, другие админы это увидят и не смогут промодерировать Новость
+	 *
+	 * @param callbackQuery - событие, которое срабатывает при нажатии на клавиатуру
+	 */
+	@Retryable(value = SocketTimeoutException.class, maxAttemptsExpression = "${telegram.retry.attemptsCount}",
+			backoff = @Backoff(delayExpression = "${telegram.retry.delay}"))
+	public void processPressKeyboardInline(CallbackQuery callbackQuery) {
+		Integer actorId = callbackQuery.from().id();
+		ModerateMessage msg = moderateMessageService.findByTlgrmIdAndAdminId(callbackQuery.message().messageId(), actorId);
 
-        Post post = msg.getPost();
-        ModerationStatusEnum moderationStatus = ModerationStatusEnum.from(callbackQuery.data());
-        if (moderationStatus == ACCEPT) {
-            msg.getPost().setStatus(PostStatusEnum.MODERATED);
-        } else if (moderationStatus == REJECT) {
-            msg.getPost().setCancelDate(LocalDateTime.now());
-            msg.getPost().setStatus(PostStatusEnum.CANCELED);
-        }
-        postService.save(post);
+		Post post = msg.getPost();
+		ModerationStatusEnum moderationStatus = ModerationStatusEnum.from(callbackQuery.data());
+		if (moderationStatus == ACCEPT) {
+			msg.getPost().setStatus(PostStatusEnum.MODERATED);
+		} else if (moderationStatus == REJECT) {
+			msg.getPost().setCancelDate(LocalDateTime.now());
+			msg.getPost().setStatus(PostStatusEnum.CANCELED);
+		}
+		postService.save(post);
 
-        Long postId = post.getId();
-        List<ChatAdmin> chatAdmins = chatAdminsFactory.findAll(post.getCity());
-        List<ModerateMessage> editMessages = chatAdmins.stream()
-                .filter(a -> a.getId() != actorId)
-                .map(a -> moderateMessageService.findByPostIdAndAdminId(postId, a.getId()))
-                .collect(toList());
+		Long postId = post.getId();
+		List<ChatAdmin> chatAdmins = chatAdminsFactory.findAll(post.getCity());
+		List<ModerateMessage> editMessages = chatAdmins.stream()
+				.filter(a -> a.getId() != actorId)
+				.map(a -> moderateMessageService.findByPostIdAndAdminId(postId, a.getId()))
+				.collect(toList());
 
-        editMessages.add(msg);
-        editMessages.forEach(m -> {
-            deleteMessage(m.getAdminId(), m.getTelegramMessageId());
-            m.setProcessedStatus(moderationStatus);
-            m.setProcessedTime(LocalDateTime.now());
-            moderateMessageService.save(m);
-        });
+		editMessages.add(msg);
+		editMessages.forEach(m -> {
+			deleteMessage(m.getAdminId(), m.getTelegramMessageId());
+			m.setProcessedStatus(moderationStatus);
+			m.setProcessedTime(LocalDateTime.now());
+			moderateMessageService.save(m);
+		});
 
-        log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
-    }
+		log.info("{} moderated postId={} with status {}", callbackQuery.from().username(), post.getId(), callbackQuery.data());
+	}
 
-    public void deleteMessage(int chatId, int messageId) {
-    	execute(new DeleteMessage(chatId, messageId));
+	public void deleteMessage(int chatId, int messageId) {
+		execute(new DeleteMessage(chatId, messageId));
 	}
 
 }

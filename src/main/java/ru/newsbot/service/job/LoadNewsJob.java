@@ -32,60 +32,60 @@ public class LoadNewsJob {
 	@Value("${job.loadNews.enable}")
 	private boolean isEnable;
 	@Value("${job.loadNews.count}")
-    private int POSTS_FETCH_SIZE;
-    @Value("${telegram.message.maxSize}")
-    private int MESSAGE_MAX_SIZE;
+	private int POSTS_FETCH_SIZE;
+	@Value("${telegram.message.maxSize}")
+	private int MESSAGE_MAX_SIZE;
 
-    private final VkService vkService;
-    private final PublicsFactory publicsFactory;
-    private final PostService postService;
+	private final VkService vkService;
+	private final PublicsFactory publicsFactory;
+	private final PostService postService;
 
-    @Scheduled(cron = "${job.loadNews.schedule}")
-    public void loadNews() {
-        if (isEnable) {
-            publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
-                List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
-                if (!isEmpty(vkWallPosts)) {
-                    log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
+	@Scheduled(cron = "${job.loadNews.schedule}")
+	public void loadNews() {
+		if (isEnable) {
+			publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
+				List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
+				if (!isEmpty(vkWallPosts)) {
+					log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
 
-                    List<Post> posts = vkWallPosts.stream()
-                            .filter(vkPost ->
-                                    postService.findVkPost(vkPost.getId(), newsPublic) == null && vkPost.getText().length() < MESSAGE_MAX_SIZE
-                            )
-                            .map(this::mapToPost)
-                            .peek(p -> {
-                                p.setCity(key);
-                                p.setPublicId(newsPublic.getId());
-                            })
-                            .collect(toList());
-                    postService.save(posts);
-                }
-            }));
-        }
-    }
+					List<Post> posts = vkWallPosts.stream()
+							.filter(vkPost ->
+									postService.findVkPost(vkPost.getId(), newsPublic) == null && vkPost.getText().length() < MESSAGE_MAX_SIZE
+							)
+							.map(this::mapToPost)
+							.peek(p -> {
+								p.setCity(key);
+								p.setPublicId(newsPublic.getId());
+							})
+							.collect(toList());
+					postService.save(posts);
+				}
+			}));
+		}
+	}
 
-    private Post mapToPost(WallpostFull p) {
-        Post post = new Post();
-        int count = 0;
-        post.setPostId(valueOf(p.getId()));
-        post.setOwnerId(-1 * valueOf(p.getOwnerId()));
-        post.setType(p.getPostType().getValue());
-        post.setPostDate(ofEpochMilli(p.getDate() * 1000L).atZone(systemDefault()).toLocalDateTime());
-        post.setText(p.getText().getBytes());
-        post.setLikesCount(p.getLikes().getCount() != null ? p.getLikes().getCount() : 0);
-        if (p.getViews() != null && p.getViews().getCount() != null) {
-            count = p.getViews().getCount();
-        }
-        post.setViewsCount(count);
-        post.setRepostsCount(p.getReposts().getCount() != null ? p.getReposts().getCount() : 0);
-        post.setCommentsCount(p.getComments().getCount() != null ? p.getComments().getCount() : 0);
-        post.setIsPinned(Integer.valueOf(1).equals(p.getIsPinned()));
-        post.setStatus(PostStatusEnum.NEW);
-        post.setPostAttachments(mapToPostAttachments(p.getAttachments()));
-        return post;
-    }
+	private Post mapToPost(WallpostFull p) {
+		Post post = new Post();
+		int count = 0;
+		post.setPostId(valueOf(p.getId()));
+		post.setOwnerId(-1 * valueOf(p.getOwnerId()));
+		post.setType(p.getPostType().getValue());
+		post.setPostDate(ofEpochMilli(p.getDate() * 1000L).atZone(systemDefault()).toLocalDateTime());
+		post.setText(p.getText().getBytes());
+		post.setLikesCount(p.getLikes().getCount() != null ? p.getLikes().getCount() : 0);
+		if (p.getViews() != null && p.getViews().getCount() != null) {
+			count = p.getViews().getCount();
+		}
+		post.setViewsCount(count);
+		post.setRepostsCount(p.getReposts().getCount() != null ? p.getReposts().getCount() : 0);
+		post.setCommentsCount(p.getComments().getCount() != null ? p.getComments().getCount() : 0);
+		post.setIsPinned(Integer.valueOf(1).equals(p.getIsPinned()));
+		post.setStatus(PostStatusEnum.NEW);
+		post.setPostAttachments(mapToPostAttachments(p.getAttachments()));
+		return post;
+	}
 
-    private List<PostAttachment> mapToPostAttachments(List<WallpostAttachment> wallpostAttacheds) {
+	private List<PostAttachment> mapToPostAttachments(List<WallpostAttachment> wallpostAttacheds) {
 		return Optional.ofNullable(wallpostAttacheds)
 				.orElse(emptyList())
 				.stream()

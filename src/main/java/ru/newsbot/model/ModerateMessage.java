@@ -6,15 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.newsbot.model.enums.ModerationStatusEnum;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,18 +16,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ModerateMessage extends Model<Long> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long postId;
-    private Integer adminId;
-    private Integer telegramMessageId;
-    private LocalDateTime processedTime;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private Long postId;
+	private Integer adminId;
+	private Integer telegramMessageId;
+	private LocalDateTime processedTime;
 
-    @Enumerated(EnumType.STRING)
-    private ModerationStatusEnum processedStatus;
+	@Enumerated(EnumType.STRING)
+	private ModerationStatusEnum processedStatus;
 
-    @OneToOne
-    @JoinColumn(name = "postId", insertable = false, updatable = false)
-    private Post post;
+	@OneToOne
+	@JoinColumn(name = "postId", insertable = false, updatable = false)
+	private Post post;
 }

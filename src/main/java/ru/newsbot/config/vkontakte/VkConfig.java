@@ -3,9 +3,9 @@ package ru.newsbot.config.vkontakte;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -13,14 +13,9 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @Configuration
+@AllArgsConstructor
 public class VkConfig {
-
 	private final VkProperties properties;
-
-	@Autowired
-	public VkConfig(VkProperties properties) {
-		this.properties = properties;
-	}
 
 	@Bean(name = "vkClient")
 	@SneakyThrows
