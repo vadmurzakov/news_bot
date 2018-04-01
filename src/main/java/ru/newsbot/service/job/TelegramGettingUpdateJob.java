@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.response.GetUpdatesResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.newsbot.service.client.TelegramService;
@@ -18,7 +19,8 @@ import static java.util.Collections.emptyList;
 @Slf4j
 @Component
 public class TelegramGettingUpdateJob {
-
+	@Value("${job.telegramGettingUpdate.enable}")
+	private boolean isEnable;
 	private int offset = 0;
 
 	private TelegramService telegramService;
@@ -35,11 +37,13 @@ public class TelegramGettingUpdateJob {
 
 	@Scheduled(cron = "${job.telegramGettingUpdate.interval}")
 	private void telegramGettingUpdate() {
-		getUpdates(offset).forEach(update -> {
-			if (update.callbackQuery() != null) {
-				telegramService.processPressKeyboardInline(update.callbackQuery());
-			}
-		});
+		if (isEnable) {
+			getUpdates(offset).forEach(update -> {
+				if (update.callbackQuery() != null) {
+					telegramService.processPressKeyboardInline(update.callbackQuery());
+				}
+			});
+		}
 	}
 
 	private List<Update> getUpdates(int offset) {

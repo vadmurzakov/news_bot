@@ -25,16 +25,21 @@ liquibase:
 
 job:
   loadNews:
+    enable: true
     schedule: '0 0-59/2 * * * *'  #четные минуты
     count: 3
   publishNews:
+    enable: true
     schedule: '30 0-59/2 * * * *' #четные минуты + 30секунд
   sendingNewsOnModeration:
+    enable: true
     schedule: '0 1-59/2 * * * *'  #нечетные минуты
     count: 3
   telegramGettingUpdate:
+    enable: true
     interval: '*/2 * * * * *'     #каждые 2 секунды
   autoDeclineNews:
+    enable: false
     interval: '* 0 * * * *'       #каждый час
 
 
@@ -44,12 +49,6 @@ news:
       -
         id: 36378934
         url: https://vk.com/belgorod
-      -
-        id: 35961352
-        url: https://vk.com/belinter
-      -
-        id: 82854310
-        url: https://vk.com/newsbelgorod
 
   chatAdmins:
     BELGOROD:

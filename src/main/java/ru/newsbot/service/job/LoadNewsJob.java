@@ -2,8 +2,8 @@ package ru.newsbot.service.job;
 
 import com.vk.api.sdk.objects.wall.WallpostAttachment;
 import com.vk.api.sdk.objects.wall.WallpostFull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,10 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LoadNewsJob {
+	@Value("${job.loadNews.enable}")
+	private boolean isEnable;
 	@Value("${job.loadNews.count}")
     private int POSTS_FETCH_SIZE;
     @Value("${telegram.message.maxSize}")
@@ -37,33 +40,28 @@ public class LoadNewsJob {
     private final PublicsFactory publicsFactory;
     private final PostService postService;
 
-    @Autowired
-    public LoadNewsJob(VkService vkService, PublicsFactory publicsFactory, PostService postService) {
-        this.vkService = vkService;
-        this.publicsFactory = publicsFactory;
-        this.postService = postService;
-    }
-
     @Scheduled(cron = "${job.loadNews.schedule}")
     public void loadNews() {
-        publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
-            List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
-            if (!isEmpty(vkWallPosts)) {
-                log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
+        if (isEnable) {
+            publicsFactory.findAll().forEach((key, value) -> value.forEach(newsPublic -> {
+                List<WallpostFull> vkWallPosts = vkService.getWallPosts(newsPublic, POSTS_FETCH_SIZE);
+                if (!isEmpty(vkWallPosts)) {
+                    log.info("retrieve {} vkWallPosts from {}", vkWallPosts.size(), newsPublic.getUrl());
 
-                List<Post> posts = vkWallPosts.stream()
-                        .filter(vkPost ->
-                            postService.findVkPost(vkPost.getId(), newsPublic) == null && vkPost.getText().length() < MESSAGE_MAX_SIZE
-                        )
-                        .map(this::mapToPost)
-                        .peek(p -> {
-                            p.setCity(key);
-                            p.setPublicId(newsPublic.getId());
-                        })
-                        .collect(toList());
-                postService.save(posts);
-            }
-        }));
+                    List<Post> posts = vkWallPosts.stream()
+                            .filter(vkPost ->
+                                    postService.findVkPost(vkPost.getId(), newsPublic) == null && vkPost.getText().length() < MESSAGE_MAX_SIZE
+                            )
+                            .map(this::mapToPost)
+                            .peek(p -> {
+                                p.setCity(key);
+                                p.setPublicId(newsPublic.getId());
+                            })
+                            .collect(toList());
+                    postService.save(posts);
+                }
+            }));
+        }
     }
 
     private Post mapToPost(WallpostFull p) {

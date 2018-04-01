@@ -1,7 +1,8 @@
 package ru.newsbot.service.job;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.newsbot.config.factory.ChatAdminsFactory;
@@ -20,34 +21,39 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AutoDeclineNewsJob {
-    private final ModerateMessageService moderateMessageService;
-    private final TelegramService telegramService;
-    private final PostService postService;
-    private final ChatAdminsFactory chatAdminsFactory;
+	@Value("${job.autoDeclineNews.enable}")
+	private boolean isEnable;
 
-    @Scheduled(cron = "${job.autoDeclineNews.interval}")
-    public void declineOldNews() {
-        List<Post> postsOnModeration = postService.findAllByStatus(PostStatusEnum.MODERATION, 200);
-        List<Post> oldPosts = postsOnModeration.stream()
-                .filter(p -> p.getCreateDate().plusHours(4).isBefore(LocalDateTime.now()))
-                .collect(Collectors.toList());
+	private final ModerateMessageService moderateMessageService;
+	private final TelegramService telegramService;
+	private final PostService postService;
+	private final ChatAdminsFactory chatAdminsFactory;
 
-        for (Post post : oldPosts) {
-            List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());
-            cityAdmins.forEach(a -> {
-                ModerateMessage message = moderateMessageService.findByPostIdAndAdminId(post.getId(), a.getId());
-                if (message != null) {
-                    telegramService.deleteMessage(message.getAdminId(), message.getTelegramMessageId());
-                    message.setProcessedStatus(ModerationStatusEnum.REJECT);
-                    moderateMessageService.save(message);
-                }
-            });
+	@Scheduled(cron = "${job.autoDeclineNews.interval}")
+	public void declineOldNews() {
+		if (isEnable) {
+			List<Post> postsOnModeration = postService.findAllByStatus(PostStatusEnum.MODERATION, 200);
+			List<Post> oldPosts = postsOnModeration.stream()
+					.filter(p -> p.getCreateDate().plusHours(4).isBefore(LocalDateTime.now()))
+					.collect(Collectors.toList());
 
-            post.setStatus(PostStatusEnum.CANCELED);
-        }
+			for (Post post : oldPosts) {
+				List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());
+				cityAdmins.forEach(a -> {
+					ModerateMessage message = moderateMessageService.findByPostIdAndAdminId(post.getId(), a.getId());
+					if (message != null) {
+						telegramService.deleteMessage(message.getAdminId(), message.getTelegramMessageId());
+						message.setProcessedStatus(ModerationStatusEnum.REJECT);
+						moderateMessageService.save(message);
+					}
+				});
 
-        postService.save(oldPosts);
-    }
+				post.setStatus(PostStatusEnum.CANCELED);
+			}
+
+			postService.save(oldPosts);
+		}
+	}
 }
