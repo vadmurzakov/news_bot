@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.response.BaseResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.newsbot.config.factory.ChatAdminsFactory;
 import ru.newsbot.config.factory.PublicsFactory;
 import ru.newsbot.config.properties.Public;
 import ru.newsbot.model.Post;
@@ -21,8 +22,9 @@ public class MessageFormatter {
     private static final String MSG_WITH_PHOTO_FORMAT = "{0}\n{1}\n\n<i>{2}\nисточник: {3}</i>";
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private static final String CALLBACK_QUERY_FORMAT = "`{0} by {1}`\n{2}";
-    private static final String BASE_REQUEST_FORMAT = "{0} in chatId = {1}";
+    private static final String BASE_REQUEST_FORMAT = "{0} to {1}";
 
+    private final ChatAdminsFactory chatAdminsFactory;
     private final PublicsFactory publicsFactory;
     private final PostService postService;
 
@@ -42,7 +44,8 @@ public class MessageFormatter {
     }
 
     public <T extends BaseRequest, R extends BaseResponse> String format(BaseRequest<T, R> request, R response) {
-        String log = MessageFormat.format(BASE_REQUEST_FORMAT, request.getMethod(), request.getParameters().get("chat_id").toString().trim());
+		String chatId = request.getParameters().get("chat_id").toString().trim();
+		String log = MessageFormat.format(BASE_REQUEST_FORMAT, request.getMethod(), chatAdminsFactory.findById(Integer.valueOf(chatId)).getName().toLowerCase());
         if (request.getParameters().get("post_id") != null) log += " , postId = " + request.getParameters().get("post_id");
         if (request.getParameters().get("message_id") != null) log += ", messageId = " + request.getParameters().get("message_id");
         if (response.description() != null) log += ", description: " + response.description();
