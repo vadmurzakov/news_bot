@@ -5,7 +5,7 @@ vk:
 
 telegram:
   token: token
-  chat:
+  chatId:
     BELGOROD: "@nameChat"
   retry:
     delay: 3000
