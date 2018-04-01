@@ -47,7 +47,6 @@ public class TelegramService {
     private final ModerateMessageService moderateMessageService;
     private final TelegramProperties telegramProperties;
 
-
     public SendResponse sendPhoto(Object chatId, String urlPhoto, String caption, @Nullable InlineKeyboardMarkup keyboard) {
 		assertNotNull(chatId, "chatId can not be null");
 
@@ -71,7 +70,7 @@ public class TelegramService {
 
     public boolean sendMessageToChannel(Post post) {
 		SendResponse response;
-        String chatId = telegramProperties.getCityChatId().get(post.getCity());
+        String chatId = telegramProperties.getChatId().get(post.getCity());
 
 		if (postService.isPostAsPhoto(post)) {
 			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), null);

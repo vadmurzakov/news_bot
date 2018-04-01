@@ -12,5 +12,5 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "telegram")
 public class TelegramProperties {
 	private String token;
-	private Map<CityEnum, String> cityChatId;
+	private Map<CityEnum, String> chatId;
 }

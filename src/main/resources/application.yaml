@@ -4,14 +4,14 @@ vk:
   serviceKeyAccess: keyAccess
 
 telegram:
-  token: <token>
-  cityChatId:
-    BELGOROD: "<@bgdChatId>"
+  token: token
+  chat:
+    BELGOROD: "@nameChat"
   retry:
     delay: 3000
     attemptsCount: 3
   message:
-    maxSize: 4095
+    maxSize: 4096
 
 
 spring:
