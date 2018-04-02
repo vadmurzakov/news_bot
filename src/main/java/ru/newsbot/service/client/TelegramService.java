@@ -77,7 +77,10 @@ public class TelegramService {
 	public SendResponse sendMessage(Post post, Object chatId, InlineKeyboardMarkup keyboard) {
 		assertNotNull(chatId, "chatId can not be null");
 		SendResponse response;
-		if (postService.isPostAsPhoto(post)) {
+		if (postService.isPostAsPhotoAlbum(post)) {
+			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
+			sendMediaGroup(chatId, post);
+		} else if (postService.isPostAsPhoto(post)) {
 			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), keyboard);
 		} else {
 			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);

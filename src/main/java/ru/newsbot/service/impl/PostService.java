@@ -41,7 +41,7 @@ public class PostService extends AbstractEntityService<Long, Post, PostRepositor
 	}
 
 	/**
-	 * Можем ли мы отправить новость вместе с картинкой (на данный момент смотрим посты только с одной картинкой)
+	 * Можем ли мы отправить новость вместе с картинкой
 	 *
 	 * @param post - новость, если в новости есть url на внешний источник, предпочтение отдаему ему, а не картинке
 	 */
@@ -53,9 +53,12 @@ public class PostService extends AbstractEntityService<Long, Post, PostRepositor
 	/**
 	 * Можно ли отправить новость как картинку
 	 * - максимальная длина описания фотографии 200 символов
-	 * - пока обрабатываем те новости, где одна картинка
 	 */
 	public boolean isPostAsPhoto(Post post) {
 		return isPostWithPhoto(post) && post.getTextAsString().length() <= 200;
+	}
+
+	public boolean isPostAsPhotoAlbum(Post post) {
+		return post.getPostAttachments().size() > 1;
 	}
 }
