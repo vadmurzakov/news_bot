@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -24,17 +24,27 @@ public class TelegramServiceTest {
 	@Autowired
 	private TelegramService telegramService;
 
+	private final Integer chatId = AdminEnum.VADMURZAKOV.id();
+	private final String caption = "Тестовой описание для файлов мультимедия";
+
 	@Test
 	public void sendMediaGroup() {
-		MessagesResponse response = telegramService.sendMediaGroup(AdminEnum.VADMURZAKOV.id(), getPost());
-		assertNotNull(response);
+		MessagesResponse response = telegramService.sendMediaGroup(chatId, getPost());
+		assertTrue(response.isOk());
 	}
 
 	@Test
 	public void sendDocument() {
 		String url = "https://vk.com/doc13342202_463504699?hash=aa4ab77a2399c714dc&dl=GA:1522680861:921a9bdd202962fc0e&api=1&mp4=1";
-		SendResponse response = telegramService.sendDocument(AdminEnum.VADMURZAKOV.id(), url, "caption gif", Keyboard.DEFAULT);
-		assertNotNull(response);
+		SendResponse response = telegramService.sendDocument(chatId, url, caption, Keyboard.DEFAULT);
+		assertTrue(response.isOk());
+	}
+
+	@Test
+	public void sendPhoto() {
+		String url = "https://pp.userapi.com/c639617/v639617986/50da6/JwujfyqWhjI.jpg";
+		SendResponse response = telegramService.sendPhoto(chatId, url, caption, Keyboard.DEFAULT);
+		assertTrue(response.isOk());
 	}
 
 	private Post getPost() {
