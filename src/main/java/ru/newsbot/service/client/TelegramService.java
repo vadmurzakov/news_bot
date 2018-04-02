@@ -65,15 +65,14 @@ public class TelegramService {
 		return execute(request);
 	}
 
-	public boolean sendMessageToChannel(Post post) {
-		SendResponse response;
-		String chatId = telegramProperties.getChatId().get(post.getCity());
-
-		if (postService.isPostAsPhoto(post)) {
-			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), null);
-		} else {
-			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), null);
+	public MessagesResponse sendMediaGroup(Object chatId, Post post) {
+		InputMediaPhoto[] inputMediaPhoto = new InputMediaPhoto[post.getPostAttachments().size()];
+		for (int i = 0; i < post.getPostAttachments().size(); i++) {
+			inputMediaPhoto[i] = new InputMediaPhoto(post.getPostAttachments().get(i).getUrlPhoto());
 		}
+		SendMediaGroup request = new SendMediaGroup(chatId, inputMediaPhoto);
+		return execute(request);
+	}
 
 	public SendResponse sendMessage(Post post, Object chatId, InlineKeyboardMarkup keyboard) {
 		assertNotNull(chatId, "chatId can not be null");
