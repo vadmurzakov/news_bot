@@ -96,4 +96,12 @@
             <column name="photo_2560_url" type="VARCHAR(200)"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="02.04.2018-1-1" author="vadmurzakov">
+        <addColumn tableName="post_attachment">
+            <column name="type" type="VARCHAR(50)" remarks="see ru.newsbot.model.enums.TypeAttachmentsEnum">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

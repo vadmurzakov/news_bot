@@ -11,12 +11,14 @@ import ru.newsbot.config.factory.PublicsFactory;
 import ru.newsbot.model.Post;
 import ru.newsbot.model.PostAttachment;
 import ru.newsbot.model.enums.PostStatusEnum;
+import ru.newsbot.model.enums.TypeAttachmentsEnum;
 import ru.newsbot.service.client.VkService;
 import ru.newsbot.service.impl.PostService;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.vk.api.sdk.objects.wall.WallpostAttachmentType.DOC;
 import static com.vk.api.sdk.objects.wall.WallpostAttachmentType.PHOTO;
 import static java.lang.Long.valueOf;
 import static java.time.Instant.ofEpochMilli;
@@ -89,19 +91,24 @@ public class LoadNewsJob {
 		return Optional.ofNullable(wallpostAttacheds)
 				.orElse(emptyList())
 				.stream()
-				.filter(a -> a != null && PHOTO == a.getType())
+				.filter(a -> a != null && (PHOTO == a.getType() || (DOC == a.getType() && a.getDoc().getExt().equals("gif"))))
 				.map(this::mapAttachment)
 				.collect(toList());
 	}
 
 	private PostAttachment mapAttachment(WallpostAttachment wallpostAttachment) {
 		PostAttachment postAttachment = new PostAttachment();
-		postAttachment.setPhoto75Url(wallpostAttachment.getPhoto().getPhoto75());
-		postAttachment.setPhoto130Url(wallpostAttachment.getPhoto().getPhoto130());
-		postAttachment.setPhoto604Url(wallpostAttachment.getPhoto().getPhoto604());
-		postAttachment.setPhoto807Url(wallpostAttachment.getPhoto().getPhoto807());
-		postAttachment.setPhoto1280Url(wallpostAttachment.getPhoto().getPhoto1280());
-		postAttachment.setPhoto2560Url(wallpostAttachment.getPhoto().getPhoto2560());
-		return postAttachment;
+		postAttachment.setType(TypeAttachmentsEnum.from(wallpostAttachment.getType().getValue()));
+		if (wallpostAttachment.getType() == PHOTO) {
+			postAttachment.setPhoto75Url(wallpostAttachment.getPhoto().getPhoto75());
+			postAttachment.setPhoto130Url(wallpostAttachment.getPhoto().getPhoto130());
+			postAttachment.setPhoto604Url(wallpostAttachment.getPhoto().getPhoto604());
+			postAttachment.setPhoto807Url(wallpostAttachment.getPhoto().getPhoto807());
+			postAttachment.setPhoto1280Url(wallpostAttachment.getPhoto().getPhoto1280());
+			postAttachment.setPhoto2560Url(wallpostAttachment.getPhoto().getPhoto2560());
+		} else if (wallpostAttachment.getType() == DOC) {
+			postAttachment.setPhoto75Url(wallpostAttachment.getDoc().getUrl());
+		}
+		return  postAttachment;
 	}
 }

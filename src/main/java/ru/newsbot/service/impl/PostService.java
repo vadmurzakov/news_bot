@@ -5,7 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.newsbot.config.properties.Public;
 import ru.newsbot.model.Post;
+import ru.newsbot.model.PostAttachment;
 import ru.newsbot.model.enums.PostStatusEnum;
+import ru.newsbot.model.enums.TypeAttachmentsEnum;
 import ru.newsbot.repository.PostRepository;
 
 import javax.transaction.Transactional;
@@ -18,6 +20,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @AllArgsConstructor
 public class PostService extends AbstractEntityService<Long, Post, PostRepository> {
 	private final PostAttachmentService attachmentService;
+	private final Integer MAX_LENGTH_MESSAGE = 200;
 
 	@Override
 	public List<Post> save(List<Post> posts) {
@@ -55,10 +58,25 @@ public class PostService extends AbstractEntityService<Long, Post, PostRepositor
 	 * - максимальная длина описания фотографии 200 символов
 	 */
 	public boolean isPostAsPhoto(Post post) {
-		return isPostWithPhoto(post) && post.getTextAsString().length() <= 200;
+		return isPostWithPhoto(post) && post.getTextAsString().length() <= MAX_LENGTH_MESSAGE;
 	}
 
 	public boolean isPostAsPhotoAlbum(Post post) {
-		return post.getPostAttachments().size() > 1;
+		boolean isPostAsPhotoAlbum = post.getPostAttachments().size() > 1;
+		for (PostAttachment postAttachment : post.getPostAttachments()) {
+			isPostAsPhotoAlbum &= postAttachment.getType() == TypeAttachmentsEnum.PHOTO;
+		}
+		return isPostAsPhotoAlbum;
+	}
+
+	public boolean isPostAsGif(Post post) {
+		boolean isPostAsGif = post.getPostAttachments().size() == 1;
+		try {
+			isPostAsGif &= post.getPostAttachments().get(0).getType() == TypeAttachmentsEnum.DOC;
+		} catch (IndexOutOfBoundsException exp) {
+			isPostAsGif = false;
+		}
+
+		return isPostAsGif;
 	}
 }

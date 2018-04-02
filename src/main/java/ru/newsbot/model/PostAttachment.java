@@ -4,8 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import ru.newsbot.model.enums.TypeAttachmentsEnum;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Data
 @Entity
@@ -18,6 +26,9 @@ public class PostAttachment extends Model<Long> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private Long postId;
+
+	@Enumerated(EnumType.STRING)
+	private TypeAttachmentsEnum type;
 
 	@Column(name = "photo_75_url")
 	private String photo75Url;

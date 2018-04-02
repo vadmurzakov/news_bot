@@ -88,6 +88,8 @@ public class TelegramService {
 		if (postService.isPostAsPhotoAlbum(post)) {
 			response = sendMessage(chatId, messageFormatter.format(post), post.getId(), keyboard);
 			sendMediaGroup(chatId, post);
+		} else if (postService.isPostAsGif(post)) {
+			response = sendDocument(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), keyboard);
 		} else if (postService.isPostAsPhoto(post)) {
 			response = sendPhoto(chatId, post.getPostAttachments().get(0).getUrlPhoto(), post.getTextAsString(), keyboard);
 		} else {
