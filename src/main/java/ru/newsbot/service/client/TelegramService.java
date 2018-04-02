@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.request.InputMediaPhoto;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.DeleteMessage;
+import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMediaGroup;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.MessagesResponse;
@@ -71,6 +72,13 @@ public class TelegramService {
 			inputMediaPhoto[i] = new InputMediaPhoto(post.getPostAttachments().get(i).getUrlPhoto());
 		}
 		SendMediaGroup request = new SendMediaGroup(chatId, inputMediaPhoto);
+		return execute(request);
+	}
+
+	public SendResponse sendDocument(Object chatId, String urlDocument, String caption, InlineKeyboardMarkup keyboard) {
+		SendDocument request = new SendDocument(chatId, urlDocument);
+		request.caption(caption);
+		request.replyMarkup(keyboard);
 		return execute(request);
 	}
 
