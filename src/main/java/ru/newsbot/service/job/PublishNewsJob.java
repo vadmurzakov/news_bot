@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.newsbot.config.telegram.TelegramProperties;
+import ru.newsbot.model.Keyboard;
 import ru.newsbot.model.Post;
 import ru.newsbot.model.enums.PostStatusEnum;
 import ru.newsbot.service.client.TelegramService;
@@ -28,7 +29,7 @@ public class PublishNewsJob {
 			List<Post> posts = postService.findAllByStatus(PostStatusEnum.MODERATED, 100);
 			posts.forEach(p -> {
 				String chatId = telegramProperties.getChatId().get(p.getCity());
-				if (telegramService.sendMessage(p, chatId, null).isOk()) {
+				if (telegramService.sendMessage(p, chatId, Keyboard.DEFAULT).isOk()) {
 					p.setPublishDate(LocalDateTime.now());
 					p.setStatus(PostStatusEnum.PUBLISHED);
 				} else {

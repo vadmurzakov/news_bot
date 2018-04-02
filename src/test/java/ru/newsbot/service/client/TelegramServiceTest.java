@@ -36,14 +36,14 @@ public class TelegramServiceTest {
 	@Test
 	public void sendDocument() {
 		String url = "https://vk.com/doc13342202_463504699?hash=aa4ab77a2399c714dc&dl=GA:1522680861:921a9bdd202962fc0e&api=1&mp4=1";
-		SendResponse response = telegramService.sendDocument(chatId, url, caption, Keyboard.DEFAULT);
+		SendResponse response = telegramService.sendDocument(chatId, url, caption, Keyboard.MODERATION);
 		assertTrue(response.isOk());
 	}
 
 	@Test
 	public void sendPhoto() {
 		String url = "https://pp.userapi.com/c639617/v639617986/50da6/JwujfyqWhjI.jpg";
-		SendResponse response = telegramService.sendPhoto(chatId, url, caption, Keyboard.DEFAULT);
+		SendResponse response = telegramService.sendPhoto(chatId, url, caption, Keyboard.MODERATION);
 		assertTrue(response.isOk());
 	}
 

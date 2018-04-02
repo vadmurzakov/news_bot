@@ -41,7 +41,7 @@ public class SendingNewsOnModerationJob {
 
 				List<ChatAdmin> cityAdmins = chatAdminsFactory.findAll(post.getCity());
 				cityAdmins.forEach(adminEnum -> {
-					SendResponse response = telegramService.sendMessage(post, adminEnum.getId(), Keyboard.DEFAULT);
+					SendResponse response = telegramService.sendMessage(post, adminEnum.getId(), Keyboard.MODERATION);
 					if (response.isOk()) {
 						storeModerateMessage(post.getId(), adminEnum.getId(), response.message().messageId());
 					}
